@@ -6,16 +6,19 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function BreathCircle({ scaleAnim, timerText, progress = 0, themeColor = '#22c55e', breathSpeed = 1.55 }) {
   const animatedProgress = useRef(new Animated.Value(0)).current;
+  const previousProgress = useRef(0);
   const textParts = timerText.split(' / ');
   const isFraction = textParts.length === 2;
 
   useEffect(() => {
+    const isBackward = progress < previousProgress.current;
     Animated.timing(animatedProgress, {
       toValue: progress,
-      duration: isFraction ? breathSpeed * 2 * 1000 : 1000,
+      duration: isBackward ? 0 : (isFraction ? breathSpeed * 2 * 1000 : 1000),
       easing: Easing.linear,
       useNativeDriver: false,
     }).start();
+    previousProgress.current = progress;
   }, [progress, isFraction, breathSpeed]);
 
   const radius = 135; 

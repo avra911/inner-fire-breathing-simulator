@@ -66,6 +66,8 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     for (let round = 1; round <= settings.rounds; round++) {
       if (stopRef.current) break;
       setCurrentRound(round);
+      setProgress(0);
+      await sleep(0);
 
       for (let breath = 1; breath <= settings.numBreaths; breath++) {
         await checkPaused();
@@ -97,6 +99,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.round_hold', { round, total: settings.rounds }));
       setProgress(0); setCanPause(true);
+      await sleep(0);
       startLoopingSound('hold');
       
       for (let i = currentHoldTime; i > 0; i--) {
@@ -129,8 +132,9 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.deepBreath'));
       setProgress(0);
+      await sleep(0);
       playSound('inhale');
-      await animateBreath({ duration: settings.deepBreathTime, inhale: true });
+      animateBreath({ duration: settings.deepBreathTime, inhale: true });
       for (let i = settings.deepBreathTime; i > 0; i--) {
         if (stopRef.current) break;
         setTimerText(displayTime(i));
@@ -143,6 +147,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.holdSeconds', { seconds: settings.holdTime }));
       setProgress(0);
+      await sleep(0);
       startLoopingSound('hold');
       for (let i = settings.holdTime; i > 0; i--) {
         if (stopRef.current) break;
@@ -158,7 +163,8 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.letItGo'));
       playSound('exhale');
       setProgress(0);
-      await animateBreath({ duration: settings.pauseAfterRound, inhale: false });
+      await sleep(0);
+      animateBreath({ duration: settings.pauseAfterRound, inhale: false });
       for (let i = settings.pauseAfterRound; i > 0; i--) {
         if (stopRef.current) break;
         setTimerText(displayTime(i));
