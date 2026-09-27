@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Animated } from 'react-native';
-import * as Haptics from 'expo-haptics'; // <--- Import Haptics
-import AsyncStorage from '@react-native-async-storage/async-storage'; // <--- Import Storage pt istoric
+import * as Haptics from 'expo-haptics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sleep, playSound, startLoopingSound, stopLoopingSound } from '../utils/audio';
 import { t } from '../utils/i18n';
 
@@ -15,7 +15,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
   const [phase, setPhase] = useState(t('phase.ready'));
   const [timerText, setTimerText] = useState('');
   const [progress, setProgress] = useState(0);
-  const [currentRound, setCurrentRound] = useState(1); // <--- Știm mereu în ce rundă suntem
+  const [currentRound, setCurrentRound] = useState(1); // Track the active round.
 
   const scaleAnim = useRef(new Animated.Value(0.3)).current;
   const [isRunning, setIsRunning] = useState(false);
@@ -54,7 +54,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     startLoopingSound('hold');
     for (let i = settings.prepTime; i > 0; i--) {
       if (stopRef.current) break;
-      setProgress(1 - (i / settings.prepTime));
+      setProgress((settings.prepTime - i + 1) / settings.prepTime);
       setTimerText(displayTime(i));
       await sleep(1000);
     }
@@ -72,7 +72,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
         if (stopRef.current) break;
 
         const breathsLeft = settings.numBreaths - breath + 1;
-        setProgress((breath - 1) / settings.numBreaths);
+        setProgress(breath / settings.numBreaths);
 
         // --- INHALE ---
         setPhase(t('phase.round', { round, total: settings.rounds }));
@@ -88,7 +88,6 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         playSound('exhale');
         await animateBreath({ duration: settings.breathSpeed, inhale: false });
-        setProgress(breath / settings.numBreaths);
       }
 
       if (stopRef.current) break;
@@ -103,40 +102,39 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       for (let i = currentHoldTime; i > 0; i--) {
         await checkPaused();
         if (stopRef.current) break;
-        setProgress(1 - (i / currentHoldTime));
+        setProgress((currentHoldTime - i + 1) / currentHoldTime);
         setTimerText(displayTime(i));
         await sleep(1000);
       }
       
       stopLoopingSound(); setCanPause(false); setProgress(1);
 
-      // --- LOGICĂ NOUĂ: SUCCES RETENȚIE ȘI SALVARE ISTORIC ---
+      // Save a successful retention round to history.
       if (!stopRef.current) {
-        // Vibrație puternică de succes la finalul retenției
+        // Strong success vibration at the end of the retention.
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
 
-        // Salvăm timpul în telefon
+        // Save the retention time on the device.
         try {
-          const date = new Date().toISOString().split('T')[0]; // ex: 2026-03-01
+          const date = new Date().toISOString().split('T')[0]; // Example: 2026-03-01.
           const record = { date, round, time: currentHoldTime };
           const existing = await AsyncStorage.getItem('innerfire_history');
           const history = existing ? JSON.parse(existing) : [];
           history.push(record);
           await AsyncStorage.setItem('innerfire_history', JSON.stringify(history));
-        } catch(e) { console.log('Eroare la salvare istoric', e); }
+        } catch(e) { console.log('Error saving history', e); }
       }
-      // --------------------------------------------------------
 
       if (stopRef.current) break;
 
       setPhase(t('phase.deepBreath'));
       setProgress(0);
       playSound('inhale');
-      animateBreath({ duration: settings.deepBreathTime, inhale: true });
+      await animateBreath({ duration: settings.deepBreathTime, inhale: true });
       for (let i = settings.deepBreathTime; i > 0; i--) {
         if (stopRef.current) break;
         setTimerText(displayTime(i));
-        setProgress(1 - (i / settings.deepBreathTime));
+        setProgress((settings.deepBreathTime - i + 1) / settings.deepBreathTime);
         await sleep(1000);
       }
       setProgress(1);
@@ -148,7 +146,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       startLoopingSound('hold');
       for (let i = settings.holdTime; i > 0; i--) {
         if (stopRef.current) break;
-        setProgress(1 - (i / settings.holdTime));
+        setProgress((settings.holdTime - i + 1) / settings.holdTime);
         setTimerText(displayTime(i));
         await sleep(1000);
       }
@@ -160,11 +158,11 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.letItGo'));
       playSound('exhale');
       setProgress(0);
-      animateBreath({ duration: settings.pauseAfterRound, inhale: false });
+      await animateBreath({ duration: settings.pauseAfterRound, inhale: false });
       for (let i = settings.pauseAfterRound; i > 0; i--) {
         if (stopRef.current) break;
         setTimerText(displayTime(i));
-        setProgress(1 - (i / settings.pauseAfterRound));
+        setProgress((settings.pauseAfterRound - i + 1) / settings.pauseAfterRound);
         await sleep(1000);
       }
       setProgress(1);
@@ -178,7 +176,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
   };
 
   const reset = () => {
-    setIsRunning(false); setIsPaused(false); setCanPause(false); setCurrentRound(1); // Reset runda
+    setIsRunning(false); setIsPaused(false); setCanPause(false); setCurrentRound(1); // Reset the round.
     setPhase(t('phase.ready')); setTimerText(''); setProgress(0);
     stopLoopingSound();
     Animated.timing(scaleAnim, { toValue: 0.3, duration: 500, useNativeDriver: true }).start();
@@ -189,6 +187,6 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
   const resume = useCallback(() => { setIsPaused(false); pauseRef.current = false; setPhase(t('phase.resumed')); if (pauseResolveRef.current) { pauseResolveRef.current(); pauseResolveRef.current = null; } }, []);
   const stop = useCallback(() => { stopRef.current = true; if (pauseRef.current && pauseResolveRef.current) { pauseResolveRef.current(); } reset(); }, []);
 
-  // Exportăm și currentRound ca să îl trimitem către UI
+  // Expose currentRound for the UI.
   return { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, start, pause, resume, stop, currentRound };
 }

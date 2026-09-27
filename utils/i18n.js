@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { getLocales } from 'expo-localization';
 import { I18n } from 'i18n-js';
 
-// 1. Importăm fișierele de limbă
+// 1. Import language files.
 import en from './locales/en.json';
 import ro from './locales/ro.json';
 import es from './locales/es.json';
@@ -11,7 +11,7 @@ import cz from './locales/cz.json';
 import de from './locales/de.json';
 import zh from './locales/zh.json';
 
-// 2. Inițializăm I18n cu toate traducerile
+// 2. Initialize I18n with all translations.
 const i18n = new I18n({
   en,
   ro,
@@ -22,17 +22,17 @@ const i18n = new I18n({
   zh
 });
 
-// 3. Setări de fallback (dacă lipsește un cuvânt, îl ia din engleză)
+// 3. Configure English fallback when a translation is missing.
 i18n.enableFallback = true;
 i18n.defaultLocale = 'en';
 
-// 4. Detectare blindată a limbii (Web vs. Nativ)
+// 4. Detect the language across web and native platforms.
 let deviceLanguage = 'en';
 
 try {
   if (Platform.OS === 'web') {
-    // Pe Web (Brave/Chrome/GitHub Pages), citim direct din browser.
-    // navigator.language returnează ex: "ro-RO" sau "en-US", noi luăm doar prima parte.
+    // On web (Brave/Chrome/GitHub Pages), read the language from the browser.
+    // navigator.language returns values such as "ro-RO" or "en-US"; use the first part.
     deviceLanguage = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   } else {
     // Pe Android / iOS, folosim modulul de la Expo
@@ -42,13 +42,13 @@ try {
     }
   }
 } catch (e) {
-  console.log("Eroare la detectarea limbii:", e);
+  console.log('Error detecting language:', e);
 }
 
-// Setăm limba detectată în instanța i18n
+// Set the detected language on the i18n instance.
 i18n.locale = deviceLanguage;
 
-// 5. Exportăm funcția de traducere
+// 5. Export the translation function.
 export function t(key, opts) {
   return i18n.t(key, opts);
 }

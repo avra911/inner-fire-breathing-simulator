@@ -16,7 +16,7 @@ export default function App() {
 
   useKeepAwake();
 
-  // Încărcăm setările salvate
+  // Load saved settings.
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -29,30 +29,30 @@ export default function App() {
     loadSettings();
   }, []);
 
-  // Salvăm setările automat când se modifică
+  // Save settings automatically when they change.
   useEffect(() => {
     AsyncStorage.setItem('innerfire_settings', JSON.stringify(settings));
   }, [settings]);
 
   const { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, start, pause, resume, stop, currentRound } = useBreathing(settings);
 
-  // Definim tema de culori ("Level Up") - un spectru de la verde spre alb
+  // Define the color theme ("Level Up") as a spectrum from green to white.
   const getThemeColor = (round) => {
-    if (!isRunning) return '#22c55e'; // Verde standard când e oprit
+    if (!isRunning) return '#22c55e'; // Standard green when stopped.
     
-    // O listă de culori (index 0 e runda 1, index 1 e runda 2 etc.)
+    // Color list: index 0 is round 1, index 1 is round 2, and so on.
     const roundColors = [
-      '#22c55e', // Runda 1: Verde (Calm / Bază)
-      '#06b6d4', // Runda 2: Turcoaz (Oxigenare)
-      '#3b82f6', // Runda 3: Albastru (Ice Man)
-      '#6366f1', // Runda 4: Indigo (Profund)
-      '#8b5cf6', // Runda 5: Violet (Stare Zen)
-      '#d946ef', // Runda 6: Roz/Magenta (Pineal gland)
-      '#ffffff'  // Runda 7+: Alb pur (Transcendence)
+      '#22c55e', // Round 1: Green (Calm / Base)
+      '#06b6d4', // Round 2: Turquoise (Oxygenation)
+      '#3b82f6', // Round 3: Blue (Ice Man)
+      '#6366f1', // Round 4: Indigo (Deep)
+      '#8b5cf6', // Round 5: Violet (Zen State)
+      '#d946ef', // Round 6: Pink/Magenta (Pineal gland)
+      '#ffffff'  // Round 7+: Pure white (Transcendence)
     ];
 
-    // Dacă runda e mai mare decât numărul de culori pe care le avem, 
-    // luăm ultima culoare din listă (în cazul nostru, Alb)
+    // If the round exceeds the number of available colors,
+    // use the last color in the list (white in this case).
     const colorIndex = Math.min(round - 1, roundColors.length - 1);
     
     return roundColors[colorIndex];
@@ -63,7 +63,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar hidden={true} />
 
-      {/* Setările în format de Modal Nativ */}
+      {/* Settings displayed in a native modal. */}
       <SettingsPanel
         visible={showSettings}
         settings={settings}
@@ -71,7 +71,7 @@ export default function App() {
         onClose={() => setShowSettings(false)}
       />
 
-      {/* Header Bar - Acum respectă Status Bar-ul de pe Android */}
+      {/* Header bar with Android status bar spacing. */}
       <View style={styles.header}>
         <Text style={styles.title}>
           {t('app.title')} <Text style={[styles.titleHighlight, { color: activeColor }]}>{t('app.subtitle')}</Text>
@@ -91,6 +91,7 @@ export default function App() {
           timerText={timerText} 
           progress={progress} 
           themeColor={activeColor} 
+          breathSpeed={settings.breathSpeed}
         />
       </View>
 
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center', // Centram titlul perfect natural
+    justifyContent: 'center', // Center the title.
     alignItems: 'center',
     marginBottom: 40,
     paddingBottom: 15,

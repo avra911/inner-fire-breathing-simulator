@@ -11,10 +11,10 @@ const ZEN_SOUNDS = {
     bowl: require('../assets/sounds/bowl.mp3'),
 };
 
-// Păstrăm o referință către sunetul care rulează în fundal (tic-tac-ul)
+// Keep a reference to the background looping sound.
 let currentLoopingSound = null;
 
-// Funcția pentru sunete scurte (Inhale, Exhale, Bowl)
+// Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
     try {
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
@@ -24,36 +24,36 @@ export async function playSound(type) {
             { shouldPlay: true, volume: 0.6 }
         );
 
-        // Curățăm memoria automat EXACT când se termină de cântat
+        // Unload the sound as soon as playback finishes.
         sound.setOnPlaybackStatusUpdate((status) => {
             if (status.didJustFinish) {
                 sound.unloadAsync();
             }
         });
     } catch (error) {
-        console.warn('Eroare la playSound:', error);
+        console.warn('Error playing sound:', error);
     }
 }
 
-// Funcția pentru sunetul continuu (Tic-Tac-ul de la Hold)
+// Start the continuous hold sound.
 export async function startLoopingSound(type) {
     try {
-        await stopLoopingSound(); // Ne asigurăm că oprim orice alt loop vechi mai întâi
+        await stopLoopingSound(); // Stop any previous loop first.
 
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
 
         const { sound } = await Audio.Sound.createAsync(
             ZEN_SOUNDS[type],
-            { shouldPlay: true, isLooping: true, volume: 0.3 } // Volum puțin mai încet pentru fundal
+            { shouldPlay: true, isLooping: true, volume: 0.3 } // Lower background volume.
         );
 
         currentLoopingSound = sound;
     } catch (error) {
-        console.warn('Eroare la startLoopingSound:', error);
+        console.warn('Error starting looping sound:', error);
     }
 }
 
-// Funcția care oprește tic-tac-ul
+// Stop the looping hold sound.
 export async function stopLoopingSound() {
     if (currentLoopingSound) {
         try {
@@ -61,7 +61,7 @@ export async function stopLoopingSound() {
             await currentLoopingSound.unloadAsync();
             currentLoopingSound = null;
         } catch (error) {
-            console.warn('Eroare la oprirea sunetului în buclă:', error);
+            console.warn('Error stopping looping sound:', error);
         }
     }
 }

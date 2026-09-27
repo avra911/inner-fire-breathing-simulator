@@ -9,7 +9,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   const [customRoundTime, setCustomRoundTime] = useState('');
 
   const handleChange = (name, value) => {
-    // Permitem doar numere
+    // Allow numbers only.
     const numValue = value === '' ? 0 : parseFloat(value);
     setSettings(prev => ({ ...prev, [name]: numValue }));
   };
@@ -72,7 +72,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
 
         <ScrollView style={styles.scrollArea} contentContainerStyle={{ paddingBottom: 40 }}>
 
-          {/* Setări Generale */}
+          {/* General settings. */}
           <View style={styles.inputGrid}>
             {inputs.map(input => (
               <View key={input.name} style={styles.inputBlock}>
@@ -90,7 +90,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
 
           <View style={styles.divider} />
 
-          {/* Runde Personalizate */}
+          {/* Custom rounds. */}
           <Text style={styles.sectionTitle}>{t('settings.customRounds')}</Text>
           <View style={styles.customAddRow}>
             <TextInput
@@ -192,10 +192,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#374151', // O linie subtilă de separare deasupra
+    borderTopColor: '#374151', // Subtle separator line above.
   },
   footerText: {
-    color: '#9ca3af', // text-gray-400 (arată mai bine pe dark mode)
+    color: '#9ca3af', // text-gray-400 for dark mode.
     fontSize: 14,
     textAlign: 'center',
   },
