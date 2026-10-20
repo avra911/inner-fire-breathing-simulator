@@ -4,7 +4,8 @@
   "pause": "Pause",
   "resume": "Resume",
   "stop": "Stop",
-  "settings": { "title": "Session Settings", "customRounds": "Custom Rounds" },
+  "settings": { "title": "Session Settings", "customRounds": "Custom Rounds", "session": "Session", "breathing": "Breathing", "recovery": "Recovery" },
+  "profiles": { "title": "Profile", "select": "Select profile", "custom": "Custom", "saveTitle": "Save current profile", "namePlaceholder": "Profile name", "save": "Save profile", "delete": "Delete profile" },
   "inputs": {
     "prepTime": "Prep Time (sec)",
     "rounds": "Rounds",
@@ -19,10 +20,13 @@
     "roundRange": "Round must be between 1 and %{max}",
     "timePositive": "Time must be positive",
     "roundExists": "Round %{round} already has a time set.",
-    "maxCustomRounds": "You can set up to %{max} custom rounds."
+    "maxCustomRounds": "You can set up to %{max} custom rounds.",
+    "profileNameRequired": "Enter a profile name.",
+    "profileExists": "A profile with this name already exists."
   },
   "addCustomRound": "Add Custom Round",
   "restoreDefaults": "Restore Defaults",
+  "close": "Close",
   "customRoundLabel": "Round %{round}: %{time} sec",
   "customRoundPlaceholderRound": "Round #",
   "customRoundPlaceholderTime": "Time (sec)",

@@ -4,7 +4,8 @@
   "pause": "Pausa",
   "resume": "Continuar",
   "stop": "Detener",
-  "settings": { "title": "Ajustes de Sesión", "customRounds": "Rondas Personalizadas" },
+  "settings": { "title": "Ajustes de Sesión", "customRounds": "Rondas Personalizadas", "session": "Sesión", "breathing": "Respiración", "recovery": "Recuperación" },
+  "profiles": { "title": "Perfil", "select": "Elegir perfil", "custom": "Personalizado", "saveTitle": "Guardar perfil actual", "namePlaceholder": "Nombre del perfil", "save": "Guardar perfil", "delete": "Eliminar perfil" },
   "inputs": {
     "prepTime": "Preparación (seg)",
     "rounds": "Rondas",
@@ -19,10 +20,13 @@
     "roundRange": "La ronda debe estar entre 1 y %{max}",
     "timePositive": "El tiempo debe ser positivo",
     "roundExists": "La ronda %{round} ya tiene un tiempo asignado.",
-    "maxCustomRounds": "Puedes configurar hasta %{max} rondas personalizadas."
+    "maxCustomRounds": "Puedes configurar hasta %{max} rondas personalizadas.",
+    "profileNameRequired": "Introduce un nombre para el perfil.",
+    "profileExists": "Ya existe un perfil con ese nombre."
   },
   "addCustomRound": "Agregar Ronda Personalizada",
   "restoreDefaults": "Restaurar Valores",
+  "close": "Cerrar",
   "customRoundLabel": "Ronda %{round}: %{time} seg",
   "customRoundPlaceholderRound": "Ronda #",
   "customRoundPlaceholderTime": "Tiempo (seg)",

@@ -4,7 +4,8 @@
   "pause": "Pauza",
   "resume": "Pokračovat",
   "stop": "Stop",
-  "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola" },
+  "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola", "session": "Sezení", "breathing": "Dýchání", "recovery": "Regenerace" },
+  "profiles": { "title": "Profil", "select": "Vybrat profil", "custom": "Vlastní", "saveTitle": "Uložit aktuální profil", "namePlaceholder": "Název profilu", "save": "Uložit profil", "delete": "Smazat profil" },
   "inputs": {
     "prepTime": "Příprava (s)",
     "rounds": "Kola",
@@ -19,10 +20,13 @@
     "roundRange": "Kolo musí být mezi 1 a %{max}",
     "timePositive": "Čas musí být kladný",
     "roundExists": "Kolo %{round} již má nastavený čas.",
-    "maxCustomRounds": "Můžete nastavit nejvíce %{max} vlastních kol."
+    "maxCustomRounds": "Můžete nastavit nejvíce %{max} vlastních kol.",
+    "profileNameRequired": "Zadejte název profilu.",
+    "profileExists": "Profil s tímto názvem již existuje."
   },
   "addCustomRound": "Přidat vlastní kolo",
   "restoreDefaults": "Obnovit výchozí hodnoty",
+  "close": "Zavřít",
   "customRoundLabel": "Kolo %{round}: %{time} s",
   "customRoundPlaceholderRound": "Kolo #",
   "customRoundPlaceholderTime": "Čas (s)",

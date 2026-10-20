@@ -4,7 +4,8 @@
   "pause": "暂停",
   "resume": "继续",
   "stop": "停止",
-  "settings": { "title": "设置", "customRounds": "自定义回合" },
+  "settings": { "title": "设置", "customRounds": "自定义回合", "session": "训练", "breathing": "呼吸", "recovery": "恢复" },
+  "profiles": { "title": "配置", "select": "选择配置", "custom": "自定义", "saveTitle": "保存当前配置", "namePlaceholder": "配置名称", "save": "保存配置", "delete": "删除配置" },
   "inputs": {
     "prepTime": "准备时间 (秒)",
     "rounds": "回合数",
@@ -19,10 +20,13 @@
     "roundRange": "回合必须在 1 到 %{max} 之间",
     "timePositive": "时间必须为正数",
     "roundExists": "第 %{round} 回合已设置时间。",
-    "maxCustomRounds": "最多可设置 %{max} 个自定义回合。"
+    "maxCustomRounds": "最多可设置 %{max} 个自定义回合。",
+    "profileNameRequired": "请输入配置名称。",
+    "profileExists": "已存在同名配置。"
   },
   "addCustomRound": "添加自定义回合",
   "restoreDefaults": "恢复默认",
+  "close": "关闭",
   "customRoundLabel": "第 %{round} 回合: %{time} 秒",
   "customRoundPlaceholderRound": "回合 #",
   "customRoundPlaceholderTime": "时间 (秒)",

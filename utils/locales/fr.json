@@ -4,7 +4,8 @@
   "pause": "Pause",
   "resume": "Reprendre",
   "stop": "Arrêter",
-  "settings": { "title": "Paramètres de session", "customRounds": "Tours personnalisés" },
+  "settings": { "title": "Paramètres de session", "customRounds": "Tours personnalisés", "session": "Session", "breathing": "Respiration", "recovery": "Récupération" },
+  "profiles": { "title": "Profil", "select": "Choisir un profil", "custom": "Personnalisé", "saveTitle": "Enregistrer le profil actuel", "namePlaceholder": "Nom du profil", "save": "Enregistrer le profil", "delete": "Supprimer le profil" },
   "inputs": {
     "prepTime": "Préparation (sec)",
     "rounds": "Tours",
@@ -19,10 +20,13 @@
     "roundRange": "Le tour doit être entre 1 et %{max}",
     "timePositive": "Le temps doit être positif",
     "roundExists": "Le tour %{round} a déjà un temps défini.",
-    "maxCustomRounds": "Vous pouvez définir jusqu'à %{max} tours personnalisés."
+    "maxCustomRounds": "Vous pouvez définir jusqu'à %{max} tours personnalisés.",
+    "profileNameRequired": "Saisissez un nom de profil.",
+    "profileExists": "Un profil portant ce nom existe déjà."
   },
   "addCustomRound": "Ajouter un tour personnalisé",
   "restoreDefaults": "Restaurer les valeurs",
+  "close": "Fermer",
   "customRoundLabel": "Tour %{round}: %{time} sec",
   "customRoundPlaceholderRound": "Tour #",
   "customRoundPlaceholderTime": "Temps (sec)",

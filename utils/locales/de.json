@@ -4,7 +4,8 @@
   "pause": "Pause",
   "resume": "Fortsetzen",
   "stop": "Stopp",
-  "settings": { "title": "Sitzungseinstellungen", "customRounds": "Benutzerdefinierte Runden" },
+  "settings": { "title": "Sitzungseinstellungen", "customRounds": "Benutzerdefinierte Runden", "session": "Sitzung", "breathing": "Atmung", "recovery": "Erholung" },
+  "profiles": { "title": "Profil", "select": "Profil auswählen", "custom": "Benutzerdefiniert", "saveTitle": "Aktuelles Profil speichern", "namePlaceholder": "Profilname", "save": "Profil speichern", "delete": "Profil löschen" },
   "inputs": {
     "prepTime": "Vorbereitungszeit (sek)",
     "rounds": "Runden",
@@ -19,10 +20,13 @@
     "roundRange": "Die Runde muss zwischen 1 und %{max} liegen",
     "timePositive": "Die Zeit muss positiv sein",
     "roundExists": "Für Runde %{round} ist bereits eine Zeit festgelegt.",
-    "maxCustomRounds": "Sie können bis zu %{max} benutzerdefinierte Runden festlegen."
+    "maxCustomRounds": "Sie können bis zu %{max} benutzerdefinierte Runden festlegen.",
+    "profileNameRequired": "Geben Sie einen Profilnamen ein.",
+    "profileExists": "Ein Profil mit diesem Namen existiert bereits."
   },
   "addCustomRound": "Runde hinzufügen",
   "restoreDefaults": "Standard wiederherstellen",
+  "close": "Schließen",
   "customRoundLabel": "Runde %{round}: %{time} sek",
   "customRoundPlaceholderRound": "Runde #",
   "customRoundPlaceholderTime": "Zeit (sek)",

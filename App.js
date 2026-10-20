@@ -71,62 +71,65 @@ export default function App() {
         onClose={() => setShowSettings(false)}
       />
 
-      {/* Header bar with Android status bar spacing. */}
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {t('app.title')} <Text style={[styles.titleHighlight, { color: activeColor }]}>{t('app.subtitle')}</Text>
-        </Text>
-        <TouchableOpacity
-          style={[styles.settingsButton, isRunning && { opacity: 0.3 }]}
-          onPress={() => setShowSettings(true)}
-          disabled={isRunning}
-        >
-          <Settings color="#9CA3AF" size={26} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.centerArea}>
-        <BreathCircle 
-          scaleAnim={scaleAnim} 
-          timerText={timerText} 
-          progress={progress} 
-          themeColor={activeColor} 
-          breathSpeed={settings.breathSpeed}
-        />
-      </View>
-
-      <Text style={styles.phaseText}>{phase}</Text>
-
-      <View style={styles.controls}>
-        {!isRunning ? (
-            <TouchableOpacity style={[styles.button, styles.startButton]} onPress={start}>
-            <Play color="#ffffff" size={24} fill="#ffffff" />
-              <Text style={styles.buttonText}>{t('startSession')}</Text>
+      <View style={styles.headerFrame}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {t('app.title')} <Text style={[styles.titleHighlight, { color: activeColor }]}>{t('app.subtitle')}</Text>
+          </Text>
+          <TouchableOpacity
+            style={[styles.settingsButton, isRunning && { opacity: 0.3 }]}
+            onPress={() => setShowSettings(true)}
+            disabled={isRunning}
+          >
+            <Settings color="#9CA3AF" size={26} />
           </TouchableOpacity>
-        ) : (
-          <View style={styles.activeControls}>
-            {!isPaused ? (
-              <TouchableOpacity
-                style={[styles.button, styles.pauseButton, !canPause && { opacity: 0.5 }]}
-                onPress={pause}
-                disabled={!canPause}
-              >
-                <Pause color="#ffffff" size={24} fill="#ffffff" />
-                <Text style={styles.buttonText}>{t('pause')}</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={[styles.button, styles.resumeButton]} onPress={resume}>
-                <Play color="#ffffff" size={24} fill="#ffffff" />
-                <Text style={styles.buttonText}>{t('resume')}</Text>
-              </TouchableOpacity>
-            )}
+        </View>
+      </View>
 
-            <TouchableOpacity style={[styles.button, styles.stopButton]} onPress={stop}>
-              <Square color="#ffffff" size={24} fill="#ffffff" />
-              <Text style={styles.buttonText}>{t('stop')}</Text>
+      <View style={styles.mainContent}>
+        <View style={styles.centerArea}>
+          <BreathCircle
+            scaleAnim={scaleAnim}
+            timerText={timerText}
+            progress={progress}
+            themeColor={activeColor}
+            breathSpeed={settings.breathSpeed}
+          />
+        </View>
+
+        <Text style={styles.phaseText}>{phase}</Text>
+
+        <View style={styles.controls}>
+          {!isRunning ? (
+            <TouchableOpacity style={[styles.button, styles.startButton]} onPress={start}>
+              <Play color="#ffffff" size={24} fill="#ffffff" />
+              <Text style={styles.buttonText}>{t('startSession')}</Text>
             </TouchableOpacity>
-          </View>
-        )}
+          ) : (
+            <View style={styles.activeControls}>
+              {!isPaused ? (
+                <TouchableOpacity
+                  style={[styles.button, styles.pauseButton, !canPause && { opacity: 0.5 }]}
+                  onPress={pause}
+                  disabled={!canPause}
+                >
+                  <Pause color="#ffffff" size={24} fill="#ffffff" />
+                  <Text style={styles.buttonText}>{t('pause')}</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={[styles.button, styles.resumeButton]} onPress={resume}>
+                  <Play color="#ffffff" size={24} fill="#ffffff" />
+                  <Text style={styles.buttonText}>{t('resume')}</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity style={[styles.button, styles.stopButton]} onPress={stop}>
+                <Square color="#ffffff" size={24} fill="#ffffff" />
+                <Text style={styles.buttonText}>{t('stop')}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -136,18 +139,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-    paddingLeft: 20,
-    paddingRight: 20,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight + 15 : (Platform.OS === 'web' ? 20 : 0)
   },
+  headerFrame: { width: '100%', borderBottomWidth: 1, borderBottomColor: '#1f2937', marginBottom: 40 },
+  mainContent: { flex: 1, width: '100%', maxWidth: 680, paddingHorizontal: 20, alignSelf: 'center' },
   header: {
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
+    paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'center', // Center the title.
     alignItems: 'center',
-    marginBottom: 40,
     paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
     position: 'relative',
     height: 60,
   },
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     position: 'absolute',
-    right: 0,
+    right: 20,
     top: 0,
     padding: 10,
     backgroundColor: '#111827',
