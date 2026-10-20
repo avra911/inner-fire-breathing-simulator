@@ -25,6 +25,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#000000"
       },
       "permissions": [
