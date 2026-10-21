@@ -54,29 +54,38 @@ function waitForPlayerReady(player) {
     });
 }
 
+const playerPromises = {};
+
+// Players are reused because remove() leaves Android AudioTracks allocated until the process runs out.
+function getPlayer(type, { volume, loop = false }) {
+    if (!playerPromises[type]) {
+        playerPromises[type] = (async () => {
+            await ensureAudioMode();
+            const player = createAudioPlayer(ZEN_SOUNDS[type]);
+            player.volume = volume;
+            player.loop = loop;
+            try {
+                await waitForPlayerReady(player);
+            } catch (error) {
+                player.remove();
+                throw error;
+            }
+            return player;
+        })().catch((error) => {
+            delete playerPromises[type];
+            throw error;
+        });
+    }
+    return playerPromises[type];
+}
+
 // Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
-    let player;
     try {
-        await ensureAudioMode();
-
-        player = createAudioPlayer(ZEN_SOUNDS[type]);
-        player.volume = 0.6;
-        await waitForPlayerReady(player);
-
-        const subscription = player.addListener('playbackStatusUpdate', (status) => {
-            if (status.error) {
-                console.warn(`Audio playback failed for ${type}:`, status.error);
-                subscription.remove();
-                player.remove();
-            } else if (status.didJustFinish) {
-                subscription.remove();
-                player.remove();
-            }
-        });
+        const player = await getPlayer(type, { volume: 0.6 });
+        await player.seekTo(0);
         player.play();
     } catch (error) {
-        player?.remove();
         console.warn(`Error playing ${type} sound:`, error);
     }
 }
@@ -84,19 +93,17 @@ export async function playSound(type) {
 // Start the continuous hold sound.
 export async function startLoopingSound(type) {
     const requestId = ++loopRequestId;
-    removeLoopingSound();
+    pauseLoopingSound();
 
     try {
-        await ensureAudioMode();
+        const player = await getPlayer(type, { volume: 0.3, loop: true });
+        if (requestId !== loopRequestId) return;
+        await player.seekTo(0);
         if (requestId !== loopRequestId) return;
 
-        currentLoopingSound = createAudioPlayer(ZEN_SOUNDS[type]);
-        currentLoopingSound.loop = true;
-        currentLoopingSound.volume = 0.3;
-        currentLoopingSound.play();
+        currentLoopingSound = player;
+        player.play();
     } catch (error) {
-        currentLoopingSound?.remove();
-        currentLoopingSound = null;
         console.warn('Error starting looping sound:', error);
     }
 }
@@ -104,16 +111,15 @@ export async function startLoopingSound(type) {
 // Stop the looping hold sound.
 export async function stopLoopingSound() {
     loopRequestId++;
-    removeLoopingSound();
+    pauseLoopingSound();
 }
 
-function removeLoopingSound() {
+function pauseLoopingSound() {
     if (currentLoopingSound) {
         const player = currentLoopingSound;
         currentLoopingSound = null;
         try {
             player.pause();
-            player.remove();
         } catch (error) {
             console.warn('Error stopping looping sound:', error);
         }
