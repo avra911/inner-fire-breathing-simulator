@@ -1,0 +1,12 @@
+.expo
+.git
+android
+ios
+node_modules
+dist
+web-build
+builds
+*.jks
+*.keystore
+.env
+.env.*

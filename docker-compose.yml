@@ -1,0 +1,30 @@
+services:
+  android-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        LOCAL_UID: ${LOCAL_UID:-1000}
+        LOCAL_GID: ${LOCAL_GID:-1000}
+    image: inner-fire-android-builder
+    working_dir: /workspace
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - .:/workspace
+      - ${HOME}/.expo:/home/builder/.expo:ro
+      - ./builds:/output
+    environment:
+      HOME: /home/builder
+      ANDROID_HOME: /opt/android-sdk-linux
+      ANDROID_SDK_ROOT: /opt/android-sdk-linux
+      ANDROID_NDK_HOME: /opt/android-sdk-linux/ndk/27.1.12297006
+      EAS_LOCAL_BUILD_ARTIFACTS_DIR: /output
+    command:
+      - eas
+      - build
+      - --platform
+      - android
+      - --profile
+      - preview
+      - --local
+      - --non-interactive

@@ -45,6 +45,15 @@ Want to run it locally or build it for your phone?
    # Or scan the QR code with the Expo Go app on your phone
    ```
 
+### Build an Android APK in Docker
+
+The Docker builder runs the EAS local Android build with Java, Android SDK/NDK, and Node installed in the container. It reads your existing Expo login from `~/.expo` and writes the APK to `builds/`.
+
+```bash
+mkdir -p builds
+LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) docker compose run --build --rm android-build
+```
+
 ## 🌐 How to Deploy (GitHub Pages & PWA)
 
 This project uses `gh-pages` and `workbox-cli` to automatically build, generate the offline Service Worker, and deploy to GitHub Pages.
