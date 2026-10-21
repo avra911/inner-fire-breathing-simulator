@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Animated } from 'react-native';
+import { Animated, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sleep, playSound, startLoopingSound, stopLoopingSound } from '../utils/audio';
@@ -32,6 +32,8 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     return m > 0 ? `${m}:${s.toString().padStart(2, '0')} sec` : `${s} sec`;
   };
 
+  const waitForPaint = () => new Promise((resolveFrame) => requestAnimationFrame(() => requestAnimationFrame(resolveFrame)));
+
   const checkPaused = async () => {
     if (pauseRef.current) await new Promise(resolve => pauseResolveRef.current = resolve);
   };
@@ -40,7 +42,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     return new Promise((resolve) => {
       if (stopRef.current) return resolve();
       Animated.timing(scaleAnim, {
-        toValue: inhale ? 1.2 : 0.3, duration: duration * 1000, useNativeDriver: true,
+        toValue: inhale ? 1.2 : 0.3, duration: duration * 1000, useNativeDriver: Platform.OS !== 'web',
       }).start(() => resolve());
     });
   };
@@ -67,18 +69,17 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       if (stopRef.current) break;
       setCurrentRound(round);
       setProgress(0);
-      await sleep(0);
+      await waitForPaint();
 
       for (let breath = 1; breath <= settings.numBreaths; breath++) {
         await checkPaused();
         if (stopRef.current) break;
 
-        const breathsLeft = settings.numBreaths - breath + 1;
         setProgress(breath / settings.numBreaths);
 
         // --- INHALE ---
         setPhase(t('phase.round', { round, total: settings.rounds }));
-        setTimerText(`${breathsLeft} / ${settings.numBreaths}`);
+        setTimerText(`${breath} / ${settings.numBreaths}`);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         playSound('inhale');
         await animateBreath({ duration: settings.breathSpeed, inhale: true });
@@ -86,10 +87,10 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
         if (stopRef.current) break;
 
         // --- EXHALE ---
-        setTimerText(`${breathsLeft} / ${settings.numBreaths}`);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         playSound('exhale');
         await animateBreath({ duration: settings.breathSpeed, inhale: false });
+        if (stopRef.current) break;
       }
 
       if (stopRef.current) break;
@@ -99,7 +100,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.round_hold', { round, total: settings.rounds }));
       setProgress(0); setCanPause(true);
-      await sleep(0);
+      await waitForPaint();
       startLoopingSound('hold');
       
       for (let i = currentHoldTime; i > 0; i--) {
@@ -132,7 +133,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.deepBreath'));
       setProgress(0);
-      await sleep(0);
+      await waitForPaint();
       playSound('inhale');
       animateBreath({ duration: settings.deepBreathTime, inhale: true });
       for (let i = settings.deepBreathTime; i > 0; i--) {
@@ -147,7 +148,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
       setPhase(t('phase.holdSeconds', { seconds: settings.holdTime }));
       setProgress(0);
-      await sleep(0);
+      await waitForPaint();
       startLoopingSound('hold');
       for (let i = settings.holdTime; i > 0; i--) {
         if (stopRef.current) break;
@@ -163,7 +164,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.letItGo'));
       playSound('exhale');
       setProgress(0);
-      await sleep(0);
+      await waitForPaint();
       animateBreath({ duration: settings.pauseAfterRound, inhale: false });
       for (let i = settings.pauseAfterRound; i > 0; i--) {
         if (stopRef.current) break;
@@ -185,7 +186,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     setIsRunning(false); setIsPaused(false); setCanPause(false); setCurrentRound(1); // Reset the round.
     setPhase(t('phase.ready')); setTimerText(''); setProgress(0);
     stopLoopingSound();
-    Animated.timing(scaleAnim, { toValue: 0.3, duration: 500, useNativeDriver: true }).start();
+    Animated.timing(scaleAnim, { toValue: 0.3, duration: 500, useNativeDriver: Platform.OS !== 'web' }).start();
   };
 
   const start = useCallback(() => runSession(), [settings]);

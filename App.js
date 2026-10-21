@@ -96,6 +96,7 @@ export default function App() {
           <BreathCircle
             scaleAnim={scaleAnim}
             timerText={timerText}
+            phase={phase}
             progress={progress}
             themeColor={activeColor}
             breathSpeed={settings.breathSpeed}

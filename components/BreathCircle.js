@@ -3,30 +3,50 @@ import { View, Text, Animated, StyleSheet, Platform, Easing } from 'react-native
 import Svg, { Path, Circle } from 'react-native-svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const ProgressCircle = Platform.OS === 'web' ? Circle : AnimatedCircle;
 
-export default function BreathCircle({ scaleAnim, timerText, progress = 0, themeColor = '#22c55e', breathSpeed = 1.55 }) {
+export default function BreathCircle({ scaleAnim, timerText, phase, progress = 0, themeColor = '#22c55e', breathSpeed = 1.55 }) {
   const animatedProgress = useRef(new Animated.Value(0)).current;
   const previousProgress = useRef(0);
+  const previousPhase = useRef(phase);
   const textParts = timerText.split(' / ');
   const isFraction = textParts.length === 2;
 
+  const shouldSnap = progress < previousProgress.current || (phase !== previousPhase.current && progress === 0);
+  const progressDuration = shouldSnap ? 0 : (isFraction ? breathSpeed * 2 * 1000 : 1000);
+
   useEffect(() => {
-    const isBackward = progress < previousProgress.current;
-    Animated.timing(animatedProgress, {
-      toValue: progress,
-      duration: isBackward ? 0 : (isFraction ? breathSpeed * 2 * 1000 : 1000),
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start();
+    if (Platform.OS !== 'web' && shouldSnap) {
+      animatedProgress.stopAnimation();
+      animatedProgress.setValue(progress);
+    } else if (Platform.OS !== 'web') {
+      Animated.timing(animatedProgress, {
+        toValue: progress,
+        duration: progressDuration,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    }
     previousProgress.current = progress;
-  }, [progress, isFraction, breathSpeed]);
+    previousPhase.current = phase;
+  }, [progress, isFraction, breathSpeed, progressDuration, shouldSnap, phase]);
 
   const radius = 135; 
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = animatedProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [circumference, 0]
-  });
+  const sectorRadius = radius / 2;
+  const sectorCircumference = 2 * Math.PI * sectorRadius;
+  const strokeDashoffset = Platform.OS === 'web'
+    ? circumference * (1 - progress)
+    : animatedProgress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [circumference, 0]
+      });
+  const sectorDashoffset = Platform.OS === 'web'
+    ? sectorCircumference * (1 - progress)
+    : animatedProgress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [sectorCircumference, 0]
+      });
 
   // Animate the text in sync with the lung movement.
   const numberScale = scaleAnim.interpolate({
@@ -72,10 +92,22 @@ export default function BreathCircle({ scaleAnim, timerText, progress = 0, theme
       <View style={styles.circleContainer}>
         <View style={styles.progressRingContainer}>
           <Svg width="300" height="300">
-            <Circle cx="150" cy="150" r={radius} stroke="#1f2937" strokeWidth="0.5" fill="none" />
-            <AnimatedCircle
+            <Circle
+              cx="150" cy="150" r={radius} stroke={themeColor} strokeWidth="5"
+              strokeOpacity={0.3} fill="none"
+              style={Platform.OS === 'web' ? { transition: 'stroke 300ms ease' } : undefined}
+            />
+            <ProgressCircle
+              cx="150" cy="150" r={sectorRadius} stroke={themeColor} strokeWidth={radius}
+              strokeOpacity={0.3} fill="none" strokeDasharray={sectorCircumference}
+              strokeDashoffset={sectorDashoffset} strokeLinecap="butt"
+              transform="rotate(-90 150 150)"
+              style={Platform.OS === 'web' ? { transition: shouldSnap ? 'none' : `stroke-dashoffset ${progressDuration}ms linear` } : undefined}
+            />
+            <ProgressCircle
               cx="150" cy="150" r={radius} stroke={themeColor} strokeWidth="5"
               fill="none" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
+              style={Platform.OS === 'web' ? { transition: shouldSnap ? 'none' : `stroke-dashoffset ${progressDuration}ms linear` } : undefined}
               strokeLinecap="round" transform="rotate(-90 150 150)"
             />
           </Svg>
