@@ -53,14 +53,14 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
     setProgress(0); setCurrentRound(1);
 
     setPhase(t('phase.preparing'));
-    startLoopingSound('hold');
+    await startLoopingSound('hold');
     for (let i = settings.prepTime; i > 0; i--) {
       if (stopRef.current) break;
       setProgress((settings.prepTime - i + 1) / settings.prepTime);
       setTimerText(displayTime(i));
       await sleep(1000);
     }
-    stopLoopingSound();
+    await stopLoopingSound();
     setProgress(1);
 
     if (stopRef.current) return reset();
@@ -81,14 +81,14 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
         setPhase(t('phase.round', { round, total: settings.rounds }));
         setTimerText(`${breath} / ${settings.numBreaths}`);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        playSound('inhale');
+        await playSound('inhale');
         await animateBreath({ duration: settings.breathSpeed, inhale: true });
 
         if (stopRef.current) break;
 
         // --- EXHALE ---
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        playSound('exhale');
+        await playSound('exhale');
         await animateBreath({ duration: settings.breathSpeed, inhale: false });
         if (stopRef.current) break;
       }
@@ -101,7 +101,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.round_hold', { round, total: settings.rounds }));
       setProgress(0); setCanPause(true);
       await waitForPaint();
-      startLoopingSound('hold');
+      await startLoopingSound('hold');
       
       for (let i = currentHoldTime; i > 0; i--) {
         await checkPaused();
@@ -111,7 +111,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
         await sleep(1000);
       }
       
-      stopLoopingSound(); setCanPause(false); setProgress(1);
+      await stopLoopingSound(); setCanPause(false); setProgress(1);
 
       // Save a successful retention round to history.
       if (!stopRef.current) {
@@ -134,7 +134,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.deepBreath'));
       setProgress(0);
       await waitForPaint();
-      playSound('inhale');
+      await playSound('inhale');
       animateBreath({ duration: settings.deepBreathTime, inhale: true });
       for (let i = settings.deepBreathTime; i > 0; i--) {
         if (stopRef.current) break;
@@ -149,20 +149,20 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
       setPhase(t('phase.holdSeconds', { seconds: settings.holdTime }));
       setProgress(0);
       await waitForPaint();
-      startLoopingSound('hold');
+      await startLoopingSound('hold');
       for (let i = settings.holdTime; i > 0; i--) {
         if (stopRef.current) break;
         setProgress((settings.holdTime - i + 1) / settings.holdTime);
         setTimerText(displayTime(i));
         await sleep(1000);
       }
-      stopLoopingSound();
+      await stopLoopingSound();
       setProgress(1);
 
       if (stopRef.current) break;
 
       setPhase(t('phase.letItGo'));
-      playSound('exhale');
+      await playSound('exhale');
       setProgress(0);
       await waitForPaint();
       animateBreath({ duration: settings.pauseAfterRound, inhale: false });
@@ -177,7 +177,7 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
 
     if (!stopRef.current) {
       setPhase(t('phase.sessionComplete')); setTimerText('Bravo!'); setProgress(1);
-      playSound('bowl');
+      await playSound('bowl');
     }
     setTimeout(reset, 3000);
   };

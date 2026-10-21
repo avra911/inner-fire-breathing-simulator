@@ -17,12 +17,24 @@ const AUDIO_MODE = {
 };
 
 let currentLoopingSound = null;
+let audioModePromise = null;
+let loopRequestId = 0;
+
+function ensureAudioMode() {
+    if (!audioModePromise) {
+        audioModePromise = setAudioModeAsync(AUDIO_MODE).catch((error) => {
+            audioModePromise = null;
+            throw error;
+        });
+    }
+    return audioModePromise;
+}
 
 // Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
     let player;
     try {
-        await setAudioModeAsync(AUDIO_MODE);
+        await ensureAudioMode();
 
         player = createAudioPlayer(ZEN_SOUNDS[type]);
         player.volume = 0.6;
@@ -42,10 +54,12 @@ export async function playSound(type) {
 
 // Start the continuous hold sound.
 export async function startLoopingSound(type) {
-    try {
-        await stopLoopingSound(); // Stop any previous loop first.
+    const requestId = ++loopRequestId;
+    removeLoopingSound();
 
-        await setAudioModeAsync(AUDIO_MODE);
+    try {
+        await ensureAudioMode();
+        if (requestId !== loopRequestId) return;
 
         currentLoopingSound = createAudioPlayer(ZEN_SOUNDS[type]);
         currentLoopingSound.loop = true;
@@ -60,6 +74,11 @@ export async function startLoopingSound(type) {
 
 // Stop the looping hold sound.
 export async function stopLoopingSound() {
+    loopRequestId++;
+    removeLoopingSound();
+}
+
+function removeLoopingSound() {
     if (currentLoopingSound) {
         const player = currentLoopingSound;
         currentLoopingSound = null;
