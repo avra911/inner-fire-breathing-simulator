@@ -5,7 +5,7 @@
   "resume": "Fortsetzen",
   "stop": "Stopp",
   "settings": { "title": "Sitzungseinstellungen", "customRounds": "Benutzerdefinierte Runden", "session": "Sitzung", "breathing": "Atmung", "recovery": "Erholung" },
-  "profiles": { "title": "Profil", "select": "Profil auswählen", "custom": "Benutzerdefiniert", "saveTitle": "Aktuelles Profil speichern", "namePlaceholder": "Profilname", "save": "Profil speichern", "delete": "Profil löschen" },
+  "profiles": { "title": "Profil", "select": "Profil auswählen", "unsaved": "Ungespeichert", "system": "System", "user": "Benutzer", "saveTitle": "Aktuelles Profil speichern", "updateHint": "Leer lassen, um dieses benutzerdefinierte Profil zu aktualisieren, oder einen Namen für ein neues eingeben", "namePlaceholder": "Profilname", "save": "Profil speichern", "delete": "Profil löschen" },
   "inputs": {
     "prepTime": "Vorbereitungszeit (sek)",
     "rounds": "Runden",

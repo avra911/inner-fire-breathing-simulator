@@ -5,7 +5,7 @@
   "resume": "Resume",
   "stop": "Stop",
   "settings": { "title": "Session Settings", "customRounds": "Custom Rounds", "session": "Session", "breathing": "Breathing", "recovery": "Recovery" },
-  "profiles": { "title": "Profile", "select": "Select profile", "custom": "Custom", "saveTitle": "Save current profile", "namePlaceholder": "Profile name", "save": "Save profile", "delete": "Delete profile" },
+  "profiles": { "title": "Profile", "select": "Select profile", "unsaved": "Unsaved", "system": "System", "user": "User", "saveTitle": "Save current profile", "updateHint": "Leave blank to update this custom profile, or enter a name to create a new one", "namePlaceholder": "Profile name", "save": "Save profile", "delete": "Delete profile" },
   "inputs": {
     "prepTime": "Prep Time (sec)",
     "rounds": "Rounds",

@@ -5,7 +5,7 @@
   "resume": "Pokračovat",
   "stop": "Stop",
   "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola", "session": "Sezení", "breathing": "Dýchání", "recovery": "Regenerace" },
-  "profiles": { "title": "Profil", "select": "Vybrat profil", "custom": "Vlastní", "saveTitle": "Uložit aktuální profil", "namePlaceholder": "Název profilu", "save": "Uložit profil", "delete": "Smazat profil" },
+  "profiles": { "title": "Profil", "select": "Vybrat profil", "unsaved": "Neuloženo", "system": "Systém", "user": "Uživatel", "saveTitle": "Uložit aktuální profil", "updateHint": "Ponechte prázdné pro aktualizaci tohoto vlastního profilu, nebo zadejte název nového", "namePlaceholder": "Název profilu", "save": "Uložit profil", "delete": "Smazat profil" },
   "inputs": {
     "prepTime": "Příprava (s)",
     "rounds": "Kola",

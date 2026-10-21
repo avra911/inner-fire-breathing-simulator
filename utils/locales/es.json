@@ -5,7 +5,7 @@
   "resume": "Continuar",
   "stop": "Detener",
   "settings": { "title": "Ajustes de Sesión", "customRounds": "Rondas Personalizadas", "session": "Sesión", "breathing": "Respiración", "recovery": "Recuperación" },
-  "profiles": { "title": "Perfil", "select": "Elegir perfil", "custom": "Personalizado", "saveTitle": "Guardar perfil actual", "namePlaceholder": "Nombre del perfil", "save": "Guardar perfil", "delete": "Eliminar perfil" },
+  "profiles": { "title": "Perfil", "select": "Elegir perfil", "unsaved": "Sin guardar", "system": "Sistema", "user": "Usuario", "saveTitle": "Guardar perfil actual", "updateHint": "Déjalo vacío para actualizar este perfil personalizado o escribe un nombre para crear otro", "namePlaceholder": "Nombre del perfil", "save": "Guardar perfil", "delete": "Eliminar perfil" },
   "inputs": {
     "prepTime": "Preparación (seg)",
     "rounds": "Rondas",

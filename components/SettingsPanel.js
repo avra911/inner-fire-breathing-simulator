@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Linking, Platform, StatusBar as RNStatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ChevronDown, Plus, RotateCcw, Save, X, Trash2 } from 'lucide-react-native';
+import { ChevronDown, CircleHelp, Plus, RotateCcw, Save, X, Trash2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_SETTINGS } from '../hooks/useBreathing';
 import { t } from '../utils/i18n';
 
 const BUILT_IN_PROFILES = [
-  { name: 'Default', settings: DEFAULT_SETTINGS },
+  { id: 'default', name: 'Default', settings: DEFAULT_SETTINGS },
   {
+    id: 'advanced',
     name: 'Advanced',
     settings: {
       ...DEFAULT_SETTINGS,
@@ -28,7 +29,9 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   const [customRoundNum, setCustomRoundNum] = useState('');
   const [customRoundTime, setCustomRoundTime] = useState('');
   const [savedProfiles, setSavedProfiles] = useState([]);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [profileName, setProfileName] = useState('');
+  const [showProfileHelp, setShowProfileHelp] = useState(false);
   const [profilesExpanded, setProfilesExpanded] = useState(false);
   const [profilesLoaded, setProfilesLoaded] = useState(false);
 
@@ -50,15 +53,38 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   }, []);
 
   const allProfiles = [...BUILT_IN_PROFILES, ...savedProfiles];
-  const activeProfile = allProfiles.find(profile => JSON.stringify(profile.settings) === JSON.stringify(settings));
+  const selectedProfile = allProfiles.find(profile => profile.id === selectedProfileId);
+  const settingsMatchProfile = profile => JSON.stringify(profile.settings) === JSON.stringify(settings);
+  const activeProfile = selectedProfile
+    ? settingsMatchProfile(selectedProfile) ? selectedProfile : null
+    : allProfiles.find(settingsMatchProfile);
+  const profileLabel = selectedProfile && !settingsMatchProfile(selectedProfile)
+    ? `${selectedProfile.name} (${t('profiles.unsaved')})`
+    : activeProfile?.name || t('profiles.unsaved');
+  const selectedSavedProfile = savedProfiles.find(profile => profile.id === selectedProfileId);
 
   const applyProfile = (profile) => {
+    setSelectedProfileId(profile.id);
+    setShowProfileHelp(false);
     setSettings(JSON.parse(JSON.stringify(profile.settings)));
     setProfilesExpanded(false);
   };
 
   const saveProfile = async () => {
     const name = profileName.trim();
+    if (!name && selectedSavedProfile) {
+      const nextProfiles = savedProfiles.map(profile => profile.id === selectedSavedProfile.id
+        ? { ...profile, settings: JSON.parse(JSON.stringify(settings)) }
+        : profile);
+      setSavedProfiles(nextProfiles);
+      try {
+        await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
+      } catch (e) {
+        console.log('Error saving profiles', e);
+      }
+      return;
+    }
+
     if (!name) {
       alert(t('alerts.profileNameRequired'));
       return;
@@ -68,12 +94,14 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
       return;
     }
 
-    const nextProfiles = [...savedProfiles, {
+    const newProfile = {
       id: Date.now().toString(),
       name,
       settings: JSON.parse(JSON.stringify(settings)),
-    }];
+    };
+    const nextProfiles = [...savedProfiles, newProfile];
     setSavedProfiles(nextProfiles);
+    setSelectedProfileId(newProfile.id);
     setProfileName('');
     try {
       await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
@@ -85,6 +113,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   const deleteProfile = async (profileId) => {
     const nextProfiles = savedProfiles.filter(profile => profile.id !== profileId);
     setSavedProfiles(nextProfiles);
+    if (selectedProfileId === profileId) setSelectedProfileId(null);
     try {
       await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
     } catch (e) {
@@ -175,7 +204,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
               <View>
                 <Text style={styles.profileCaption}>{t('profiles.select')}</Text>
                 <Text style={styles.profileSelectorText}>
-                  {activeProfile?.name || t('profiles.custom')}
+                  {profileLabel}
                 </Text>
               </View>
               <ChevronDown color="#86efac" size={21} />
@@ -194,13 +223,29 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
                     <Text style={[
                       styles.profileOptionText,
                       activeProfile?.name === profile.name && styles.activeProfileText,
-                    ]}>{profile.name}</Text>
+                    ]}>{profile.name} ( - {t(BUILT_IN_PROFILES.some(systemProfile => systemProfile.id === profile.id) ? 'profiles.system' : 'profiles.user')})</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             )}
 
-            <Text style={styles.profileSubheading}>{t('profiles.saveTitle')}</Text>
+            <View style={styles.profileSubheadingRow}>
+              <Text style={styles.profileSubheading}>{t('profiles.saveTitle')}</Text>
+              {selectedSavedProfile && (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={t('profiles.updateHint')}
+                  accessibilityState={{ expanded: showProfileHelp }}
+                  style={styles.profileHelpButton}
+                  onPress={() => setShowProfileHelp(!showProfileHelp)}
+                >
+                  <CircleHelp color="#86efac" size={18} />
+                </TouchableOpacity>
+              )}
+            </View>
+            {selectedSavedProfile && (
+              showProfileHelp && <Text style={styles.profileHint}>{t('profiles.updateHint')}</Text>
+            )}
             <View style={styles.customAddRow}>
               <TextInput
                 style={[styles.input, styles.profileNameInput]}
@@ -212,7 +257,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
               />
               <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel={t('profiles.save')}
+                accessibilityLabel={selectedSavedProfile && !profileName.trim() ? t('profiles.saveTitle') : t('profiles.save')}
                 style={[styles.profileSaveButton, !profilesLoaded && styles.disabledButton]}
                 onPress={saveProfile}
                 disabled={!profilesLoaded}
@@ -305,7 +350,10 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
           {/* Restore Defaults */}
           <TouchableOpacity
             style={styles.restoreBtn}
-            onPress={() => setSettings(DEFAULT_SETTINGS)}
+            onPress={() => {
+              setSelectedProfileId('default');
+              setSettings(DEFAULT_SETTINGS);
+            }}
           >
             <RotateCcw color="#fca5a5" size={17} />
             <Text style={styles.restoreBtnText}>{t('restoreDefaults')}</Text>
@@ -363,8 +411,11 @@ const styles = StyleSheet.create({
   activeProfileOption: { backgroundColor: '#14271d' },
   profileOptionText: { color: '#c5d0c9', fontSize: 14 },
   activeProfileText: { color: '#86efac', fontWeight: '600' },
-  profileSubheading: { color: '#9aaba1', fontSize: 12, marginTop: 16, marginBottom: 8 },
+  profileSubheadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 },
+  profileSubheading: { color: '#9aaba1', fontSize: 12 },
   profileNameInput: { flex: 1, minWidth: 0 },
+  profileHint: { color: '#81948a', fontSize: 11, marginTop: -4, marginBottom: 8 },
+  profileHelpButton: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   profileSaveButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#86efac', borderRadius: 10 },
   disabledButton: { opacity: 0.5 },
   savedProfileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10 },

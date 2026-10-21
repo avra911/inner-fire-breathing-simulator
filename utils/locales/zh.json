@@ -5,7 +5,7 @@
   "resume": "继续",
   "stop": "停止",
   "settings": { "title": "设置", "customRounds": "自定义回合", "session": "训练", "breathing": "呼吸", "recovery": "恢复" },
-  "profiles": { "title": "配置", "select": "选择配置", "custom": "自定义", "saveTitle": "保存当前配置", "namePlaceholder": "配置名称", "save": "保存配置", "delete": "删除配置" },
+  "profiles": { "title": "配置", "select": "选择配置", "unsaved": "未保存", "system": "系统", "user": "用户", "saveTitle": "保存当前配置", "updateHint": "留空以更新此自定义配置，或输入名称以创建新配置", "namePlaceholder": "配置名称", "save": "保存配置", "delete": "删除配置" },
   "inputs": {
     "prepTime": "准备时间 (秒)",
     "rounds": "回合数",

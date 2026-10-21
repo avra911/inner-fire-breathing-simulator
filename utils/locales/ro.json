@@ -5,7 +5,7 @@
   "resume": "Continuă",
   "stop": "Stop",
   "settings": { "title": "Setări Sesiune", "customRounds": "Runde Personalizate", "session": "Sesiune", "breathing": "Respirație", "recovery": "Recuperare" },
-  "profiles": { "title": "Profil", "select": "Alege profilul", "custom": "Personalizat", "saveTitle": "Salvează profilul actual", "namePlaceholder": "Numele profilului", "save": "Salvează profilul", "delete": "Șterge profilul" },
+  "profiles": { "title": "Profil", "select": "Alege profilul", "unsaved": "Nesalvat", "system": "Sistem", "user": "Utilizator", "saveTitle": "Salvează profilul actual", "updateHint": "Lasă gol pentru a actualiza acest profil personalizat sau introdu un nume pentru a crea altul", "namePlaceholder": "Numele profilului", "save": "Salvează profilul", "delete": "Șterge profilul" },
   "inputs": {
     "prepTime": "Pregătire (sec)",
     "rounds": "Număr Runde",
