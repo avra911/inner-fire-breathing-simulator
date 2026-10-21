@@ -1,4 +1,4 @@
-import { Audio } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -11,26 +11,31 @@ const ZEN_SOUNDS = {
     bowl: require('../assets/sounds/bowl.mp3'),
 };
 
-// Keep a reference to the background looping sound.
+const AUDIO_MODE = {
+    playsInSilentMode: true,
+    shouldPlayInBackground: true,
+};
+
 let currentLoopingSound = null;
 
 // Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
+    let player;
     try {
-        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
+        await setAudioModeAsync(AUDIO_MODE);
 
-        const { sound } = await Audio.Sound.createAsync(
-            ZEN_SOUNDS[type],
-            { shouldPlay: true, volume: 0.6 }
-        );
+        player = createAudioPlayer(ZEN_SOUNDS[type]);
+        player.volume = 0.6;
 
-        // Unload the sound as soon as playback finishes.
-        sound.setOnPlaybackStatusUpdate((status) => {
+        const subscription = player.addListener('playbackStatusUpdate', (status) => {
             if (status.didJustFinish) {
-                sound.unloadAsync();
+                subscription.remove();
+                player.remove();
             }
         });
+        player.play();
     } catch (error) {
+        player?.remove();
         console.warn('Error playing sound:', error);
     }
 }
@@ -40,15 +45,15 @@ export async function startLoopingSound(type) {
     try {
         await stopLoopingSound(); // Stop any previous loop first.
 
-        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
+        await setAudioModeAsync(AUDIO_MODE);
 
-        const { sound } = await Audio.Sound.createAsync(
-            ZEN_SOUNDS[type],
-            { shouldPlay: true, isLooping: true, volume: 0.3 } // Lower background volume.
-        );
-
-        currentLoopingSound = sound;
+        currentLoopingSound = createAudioPlayer(ZEN_SOUNDS[type]);
+        currentLoopingSound.loop = true;
+        currentLoopingSound.volume = 0.3;
+        currentLoopingSound.play();
     } catch (error) {
+        currentLoopingSound?.remove();
+        currentLoopingSound = null;
         console.warn('Error starting looping sound:', error);
     }
 }
@@ -56,10 +61,11 @@ export async function startLoopingSound(type) {
 // Stop the looping hold sound.
 export async function stopLoopingSound() {
     if (currentLoopingSound) {
+        const player = currentLoopingSound;
+        currentLoopingSound = null;
         try {
-            await currentLoopingSound.stopAsync();
-            await currentLoopingSound.unloadAsync();
-            currentLoopingSound = null;
+            player.pause();
+            player.remove();
         } catch (error) {
             console.warn('Error stopping looping sound:', error);
         }

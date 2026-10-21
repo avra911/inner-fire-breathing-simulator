@@ -39,7 +39,7 @@ Want to run it locally or build it for your phone?
 3. **Run the local Expo server:**
    ```bash
    # Start the Expo bundler
-   npx expo start
+   npx expo start --go
 
    # Press 'w' in the terminal to open the web version
    # Or scan the QR code with the Expo Go app on your phone

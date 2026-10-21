@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, Linking } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Linking, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { ChevronDown, Plus, RotateCcw, Save, X, Trash2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_SETTINGS } from '../hooks/useBreathing';
@@ -138,16 +140,24 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   ];
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <View>
-              <Text style={styles.headerEyebrow}>{t('app.title')}</Text>
-              <Text style={styles.title}>{t('settings.title')}</Text>
-            </View>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <SafeAreaProvider>
+        <StatusBar hidden />
+        <SafeAreaView
+          edges={Platform.OS === 'android' ? ['left', 'right', 'bottom'] : undefined}
+          style={styles.container}
+        >
+        <View style={styles.headerFrame}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{t('settings.title')}</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('close')} onPress={onClose} style={styles.closeBtn}>
-              <X color="#ffffff" size={24} />
+              <X color="#9CA3AF" size={26} />
             </TouchableOpacity>
           </View>
         </View>
@@ -325,18 +335,22 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
           </View>
 
         </ScrollView>
-      </SafeAreaView>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#080e0c' },
-  header: { alignItems: 'center', paddingHorizontal: 24, paddingVertical: 18, borderBottomWidth: 1, borderBottomColor: '#1b2b25' },
-  headerContent: { width: '100%', maxWidth: 640, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerEyebrow: { color: '#86efac', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginBottom: 3 },
-  title: { color: '#f3f7f4', fontSize: 22, fontWeight: '700' },
-  closeBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: '#14221c', borderRadius: 12, borderWidth: 1, borderColor: '#283a32' },
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+    paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight + 15 : 0,
+  },
+  headerFrame: { width: '100%', borderBottomWidth: 1, borderBottomColor: '#1f2937', marginBottom: 22 },
+  header: { width: '100%', maxWidth: 680, height: 60, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' },
+  title: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', textAlign: 'center' },
+  closeBtn: { position: 'absolute', right: 20, top: 0, padding: 10, backgroundColor: '#111827', borderRadius: 50, borderWidth: 1, borderColor: '#374151', zIndex: 10 },
   scrollArea: { flex: 1 },
   scrollContent: { width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 22, paddingTop: 22, paddingBottom: 44 },
   profileSection: { padding: 17, backgroundColor: '#0d1914', borderWidth: 1, borderColor: '#1d3c2e', borderRadius: 14, marginBottom: 26 },

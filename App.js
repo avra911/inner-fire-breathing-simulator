@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Play, Settings, Square, Pause } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useKeepAwake } from 'expo-keep-awake';
@@ -60,7 +61,11 @@ export default function App() {
   const activeColor = getThemeColor(currentRound);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider>
+      <SafeAreaView
+        edges={Platform.OS === 'android' ? ['left', 'right', 'bottom'] : undefined}
+        style={styles.container}
+      >
       <StatusBar hidden={true} />
 
       {/* Settings displayed in a native modal. */}
@@ -131,7 +136,8 @@ export default function App() {
           )}
         </View>
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
