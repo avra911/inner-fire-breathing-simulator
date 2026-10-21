@@ -30,6 +30,30 @@ function ensureAudioMode() {
     return audioModePromise;
 }
 
+function waitForPlayerReady(player) {
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        let subscription;
+        let timeout;
+        const finish = (error) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            subscription?.remove();
+            if (error) reject(error);
+            else resolve();
+        };
+
+        timeout = setTimeout(() => finish(new Error('Audio player load timed out')), 3000);
+        subscription = player.addListener('playbackStatusUpdate', (status) => {
+            if (status.error) finish(new Error(status.error));
+            else if (status.isLoaded) finish();
+        });
+
+        if (player.isLoaded) finish();
+    });
+}
+
 // Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
     let player;
@@ -38,9 +62,14 @@ export async function playSound(type) {
 
         player = createAudioPlayer(ZEN_SOUNDS[type]);
         player.volume = 0.6;
+        await waitForPlayerReady(player);
 
         const subscription = player.addListener('playbackStatusUpdate', (status) => {
-            if (status.didJustFinish) {
+            if (status.error) {
+                console.warn(`Audio playback failed for ${type}:`, status.error);
+                subscription.remove();
+                player.remove();
+            } else if (status.didJustFinish) {
                 subscription.remove();
                 player.remove();
             }
@@ -48,7 +77,7 @@ export async function playSound(type) {
         player.play();
     } catch (error) {
         player?.remove();
-        console.warn('Error playing sound:', error);
+        console.warn(`Error playing ${type} sound:`, error);
     }
 }
 
