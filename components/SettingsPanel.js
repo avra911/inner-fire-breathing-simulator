@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-    paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight + 15 : 0,
+    paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight + 15 : (Platform.OS === 'web' ? 20 : 0),
   },
   headerFrame: { width: '100%', borderBottomWidth: 1, borderBottomColor: '#1f2937', marginBottom: 22 },
   header: { width: '100%', maxWidth: 680, height: 60, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' },
