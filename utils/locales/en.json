@@ -30,7 +30,7 @@
   "close": "Close",
   "customRoundLabel": "Round %{round}: %{time} sec",
   "customRoundPlaceholderRound": "Round #",
-  "customRoundPlaceholderTime": "Time (sec)",
+  "customRoundPlaceholderTime": "Time (s)",
   "footer": { "madeWith": "Made with ❤️ in EU · ", "githubRepo": "GitHub Repo" },
   "donations": "Donations:",
   "btcWallet": "BTC Wallet",
