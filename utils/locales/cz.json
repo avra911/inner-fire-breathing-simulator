@@ -4,17 +4,18 @@
   "pause": "Pauza",
   "resume": "Pokračovat",
   "stop": "Stop",
-  "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola", "session": "Sezení", "breathing": "Dýchání", "recovery": "Regenerace" },
-  "profiles": { "title": "Profil", "select": "Vybrat profil", "unsaved": "Neuloženo", "system": "Systém", "user": "Uživatel", "saveTitle": "Uložit aktuální profil", "updateHint": "Ponechte prázdné pro aktualizaci tohoto vlastního profilu, nebo zadejte název nového", "namePlaceholder": "Název profilu", "save": "Uložit profil", "delete": "Smazat profil" },
+  "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola", "session": "Sezení", "breathing": "Dýchání", "recovery": "Regenerace", "totalTime": "Celkem" },
+  "units": { "secondsShort": "s" },
+  "profiles": { "title": "Profil", "select": "Vybrat profil", "custom": "Vlastní", "modified": "upraveno", "system": "Systém", "user": "Uživatel", "update": "Aktualizovat „%{name}“", "saveAsNew": "Uložit jako nový…", "namePlaceholder": "Název profilu", "save": "Uložit profil", "cancel": "Zrušit", "confirmDelete": "Smazat profil „%{name}“?", "delete": "Smazat profil" },
   "inputs": {
-    "prepTime": "Příprava (s)",
+    "prepTime": "Příprava",
     "rounds": "Kola",
-    "breathSpeed": "Rychlost dechu (s)",
+    "breathSpeed": "Rychlost dechu",
     "numBreaths": "Dechy / Kolo",
-    "breathOutHold": "Zadržení (OUT) (s)",
-    "deepBreathTime": "Hluboký nádech (s)",
-    "holdTime": "Zadržení (IN) (s)",
-    "pauseAfterRound": "Pauza mezi koly (s)"
+    "breathOutHold": "Zadržení (OUT)",
+    "deepBreathTime": "Hluboký nádech",
+    "holdTime": "Zadržení (IN)",
+    "pauseAfterRound": "Pauza mezi koly"
   },
   "alerts": {
     "roundRange": "Kolo musí být mezi 1 a %{max}",

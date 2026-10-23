@@ -4,17 +4,18 @@
   "pause": "暂停",
   "resume": "继续",
   "stop": "停止",
-  "settings": { "title": "设置", "customRounds": "自定义回合", "session": "训练", "breathing": "呼吸", "recovery": "恢复" },
-  "profiles": { "title": "配置", "select": "选择配置", "unsaved": "未保存", "system": "系统", "user": "用户", "saveTitle": "保存当前配置", "updateHint": "留空以更新此自定义配置，或输入名称以创建新配置", "namePlaceholder": "配置名称", "save": "保存配置", "delete": "删除配置" },
+  "settings": { "title": "设置", "customRounds": "自定义回合", "session": "训练", "breathing": "呼吸", "recovery": "恢复", "totalTime": "总计" },
+  "units": { "secondsShort": "秒" },
+  "profiles": { "title": "配置", "select": "选择配置", "custom": "自定义", "modified": "已修改", "system": "系统", "user": "用户", "update": "更新“%{name}”", "saveAsNew": "另存为新配置…", "namePlaceholder": "配置名称", "save": "保存配置", "cancel": "取消", "confirmDelete": "删除配置“%{name}”？", "delete": "删除配置" },
   "inputs": {
-    "prepTime": "准备时间 (秒)",
+    "prepTime": "准备时间",
     "rounds": "回合数",
-    "breathSpeed": "呼吸速度 (秒)",
+    "breathSpeed": "呼吸速度",
     "numBreaths": "呼吸次数 / 回合",
-    "breathOutHold": "屏息 (呼气后) (秒)",
-    "deepBreathTime": "深呼吸 (秒)",
-    "holdTime": "屏息 (吸气后) (秒)",
-    "pauseAfterRound": "回合间休息 (秒)"
+    "breathOutHold": "屏息 (呼气后)",
+    "deepBreathTime": "深呼吸",
+    "holdTime": "屏息 (吸气后)",
+    "pauseAfterRound": "回合间休息"
   },
   "alerts": {
     "roundRange": "回合必须在 1 到 %{max} 之间",

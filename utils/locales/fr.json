@@ -4,17 +4,18 @@
   "pause": "Pause",
   "resume": "Reprendre",
   "stop": "Arrêter",
-  "settings": { "title": "Paramètres de session", "customRounds": "Tours personnalisés", "session": "Session", "breathing": "Respiration", "recovery": "Récupération" },
-  "profiles": { "title": "Profil", "select": "Choisir un profil", "unsaved": "Non enregistré", "system": "Système", "user": "Utilisateur", "saveTitle": "Enregistrer le profil actuel", "updateHint": "Laissez vide pour modifier ce profil personnalisé ou saisissez un nom pour en créer un autre", "namePlaceholder": "Nom du profil", "save": "Enregistrer le profil", "delete": "Supprimer le profil" },
+  "settings": { "title": "Paramètres de session", "customRounds": "Tours personnalisés", "session": "Session", "breathing": "Respiration", "recovery": "Récupération", "totalTime": "Total" },
+  "units": { "secondsShort": "s" },
+  "profiles": { "title": "Profil", "select": "Choisir un profil", "custom": "Personnalisé", "modified": "modifié", "system": "Système", "user": "Utilisateur", "update": "Mettre à jour « %{name} »", "saveAsNew": "Enregistrer comme nouveau…", "namePlaceholder": "Nom du profil", "save": "Enregistrer le profil", "cancel": "Annuler", "confirmDelete": "Supprimer le profil « %{name} » ?", "delete": "Supprimer le profil" },
   "inputs": {
-    "prepTime": "Préparation (sec)",
+    "prepTime": "Préparation",
     "rounds": "Tours",
-    "breathSpeed": "Vitesse de respiration (sec)",
+    "breathSpeed": "Vitesse de respiration",
     "numBreaths": "Respirations / Tour",
-    "breathOutHold": "Rétention (OUT) (sec)",
-    "deepBreathTime": "Inspiration profonde (sec)",
-    "holdTime": "Rétention (IN) (sec)",
-    "pauseAfterRound": "Pause entre les tours (sec)"
+    "breathOutHold": "Rétention (OUT)",
+    "deepBreathTime": "Inspiration profonde",
+    "holdTime": "Rétention (IN)",
+    "pauseAfterRound": "Pause entre les tours"
   },
   "alerts": {
     "roundRange": "Le tour doit être entre 1 et %{max}",

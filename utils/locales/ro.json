@@ -4,17 +4,18 @@
   "pause": "Pauză",
   "resume": "Continuă",
   "stop": "Stop",
-  "settings": { "title": "Setări Sesiune", "customRounds": "Runde Personalizate", "session": "Sesiune", "breathing": "Respirație", "recovery": "Recuperare" },
-  "profiles": { "title": "Profil", "select": "Alege profilul", "unsaved": "Nesalvat", "system": "Sistem", "user": "Utilizator", "saveTitle": "Salvează profilul actual", "updateHint": "Lasă gol pentru a actualiza acest profil personalizat sau introdu un nume pentru a crea altul", "namePlaceholder": "Numele profilului", "save": "Salvează profilul", "delete": "Șterge profilul" },
+  "settings": { "title": "Setări Sesiune", "customRounds": "Runde Personalizate", "session": "Sesiune", "breathing": "Respirație", "recovery": "Recuperare", "totalTime": "Total" },
+  "units": { "secondsShort": "s" },
+  "profiles": { "title": "Profil", "select": "Alege profilul", "custom": "Personalizat", "modified": "modificat", "system": "Sistem", "user": "Utilizator", "update": "Actualizează „%{name}”", "saveAsNew": "Salvează ca nou…", "namePlaceholder": "Numele profilului", "save": "Salvează profilul", "cancel": "Anulează", "delete": "Șterge profilul", "confirmDelete": "Ștergi profilul „%{name}”?" },
   "inputs": {
-    "prepTime": "Pregătire (sec)",
+    "prepTime": "Pregătire",
     "rounds": "Număr Runde",
-    "breathSpeed": "Viteză Respirație (sec)",
+    "breathSpeed": "Viteză Respirație",
     "numBreaths": "Respirații / Rundă",
-    "breathOutHold": "Retenție (OUT) (sec)",
-    "deepBreathTime": "Inhalare Adâncă (sec)",
-    "holdTime": "Retenție (IN) (sec)",
-    "pauseAfterRound": "Pauză între runde (sec)"
+    "breathOutHold": "Retenție (OUT)",
+    "deepBreathTime": "Inhalare Adâncă",
+    "holdTime": "Retenție (IN)",
+    "pauseAfterRound": "Pauză între runde"
   },
   "alerts": {
     "roundRange": "Runda trebuie să fie între 1 și %{max}",

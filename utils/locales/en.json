@@ -4,17 +4,18 @@
   "pause": "Pause",
   "resume": "Resume",
   "stop": "Stop",
-  "settings": { "title": "Session Settings", "customRounds": "Custom Rounds", "session": "Session", "breathing": "Breathing", "recovery": "Recovery" },
-  "profiles": { "title": "Profile", "select": "Select profile", "unsaved": "Unsaved", "system": "System", "user": "User", "saveTitle": "Save current profile", "updateHint": "Leave blank to update this custom profile, or enter a name to create a new one", "namePlaceholder": "Profile name", "save": "Save profile", "delete": "Delete profile" },
+  "settings": { "title": "Session Settings", "customRounds": "Custom Rounds", "session": "Session", "breathing": "Breathing", "recovery": "Recovery", "totalTime": "Total" },
+  "units": { "secondsShort": "s" },
+  "profiles": { "title": "Profile", "select": "Select profile", "custom": "Custom", "modified": "modified", "system": "System", "user": "User", "update": "Update “%{name}”", "saveAsNew": "Save as new…", "namePlaceholder": "Profile name", "save": "Save profile", "cancel": "Cancel", "delete": "Delete profile", "confirmDelete": "Delete profile “%{name}”?" },
   "inputs": {
-    "prepTime": "Prep Time (sec)",
+    "prepTime": "Prep Time",
     "rounds": "Rounds",
-    "breathSpeed": "Breath Speed (sec)",
+    "breathSpeed": "Breath Speed",
     "numBreaths": "Breaths / Round",
-    "breathOutHold": "Hold (OUT) (sec)",
-    "deepBreathTime": "Deep Breath (sec)",
-    "holdTime": "Hold (IN) (sec)",
-    "pauseAfterRound": "Pause Between Rounds (sec)"
+    "breathOutHold": "Hold (OUT)",
+    "deepBreathTime": "Deep Breath",
+    "holdTime": "Hold (IN)",
+    "pauseAfterRound": "Pause Between Rounds"
   },
   "alerts": {
     "roundRange": "Round must be between 1 and %{max}",

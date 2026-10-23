@@ -4,17 +4,18 @@
   "pause": "Pause",
   "resume": "Fortsetzen",
   "stop": "Stopp",
-  "settings": { "title": "Sitzungseinstellungen", "customRounds": "Benutzerdefinierte Runden", "session": "Sitzung", "breathing": "Atmung", "recovery": "Erholung" },
-  "profiles": { "title": "Profil", "select": "Profil auswählen", "unsaved": "Ungespeichert", "system": "System", "user": "Benutzer", "saveTitle": "Aktuelles Profil speichern", "updateHint": "Leer lassen, um dieses benutzerdefinierte Profil zu aktualisieren, oder einen Namen für ein neues eingeben", "namePlaceholder": "Profilname", "save": "Profil speichern", "delete": "Profil löschen" },
+  "settings": { "title": "Sitzungseinstellungen", "customRounds": "Benutzerdefinierte Runden", "session": "Sitzung", "breathing": "Atmung", "recovery": "Erholung", "totalTime": "Gesamt" },
+  "units": { "secondsShort": "s" },
+  "profiles": { "title": "Profil", "select": "Profil auswählen", "custom": "Benutzerdefiniert", "modified": "geändert", "system": "System", "user": "Benutzer", "update": "„%{name}“ aktualisieren", "saveAsNew": "Als neu speichern…", "namePlaceholder": "Profilname", "save": "Profil speichern", "cancel": "Abbrechen", "confirmDelete": "Profil „%{name}“ löschen?", "delete": "Profil löschen" },
   "inputs": {
-    "prepTime": "Vorbereitungszeit (sek)",
+    "prepTime": "Vorbereitungszeit",
     "rounds": "Runden",
-    "breathSpeed": "Atemgeschwindigkeit (sek)",
+    "breathSpeed": "Atemgeschwindigkeit",
     "numBreaths": "Atemzüge / Runde",
-    "breathOutHold": "Luft anhalten (AUS) (sek)",
-    "deepBreathTime": "Tiefer Atemzug (sek)",
-    "holdTime": "Luft anhalten (EIN) (sek)",
-    "pauseAfterRound": "Pause zwischen Runden (sek)"
+    "breathOutHold": "Luft anhalten (AUS)",
+    "deepBreathTime": "Tiefer Atemzug",
+    "holdTime": "Luft anhalten (EIN)",
+    "pauseAfterRound": "Pause zwischen Runden"
   },
   "alerts": {
     "roundRange": "Die Runde muss zwischen 1 und %{max} liegen",

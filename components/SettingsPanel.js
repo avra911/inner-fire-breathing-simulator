@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Linking, Platform, StatusBar as RNStatusBar } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Linking, Platform, StatusBar as RNStatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ChevronDown, CircleHelp, Plus, RotateCcw, Save, X, Trash2 } from 'lucide-react-native';
+import { Check, ChevronDown, Minus, Plus, RotateCcw, Save, X, Trash2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_SETTINGS } from '../hooks/useBreathing';
 import { t } from '../utils/i18n';
@@ -25,15 +25,59 @@ const BUILT_IN_PROFILES = [
   },
 ];
 
+const FIELD_RULES = {
+  prepTime: { seconds: true },
+  rounds: { min: 1, integer: true },
+  numBreaths: { min: 1, integer: true },
+  breathSpeed: { min: 0.1, step: 0.05, seconds: true },
+  breathOutHold: { step: 5, seconds: true },
+  deepBreathTime: { seconds: true },
+  holdTime: { seconds: true },
+  pauseAfterRound: { seconds: true },
+};
+
+// Ignores audio playback latency, so the real session runs slightly longer.
+const estimateSessionSeconds = (s) => {
+  let total = s.prepTime;
+  for (let round = 1; round <= s.rounds; round++) {
+    const custom = s.customRounds?.find(r => r.round === round);
+    total += s.numBreaths * 2 * s.breathSpeed
+      + (custom ? custom.time : s.breathOutHold)
+      + s.deepBreathTime + s.holdTime + s.pauseAfterRound;
+  }
+  return Math.round(total);
+};
+
+const formatDuration = (seconds) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = String(seconds % 60).padStart(2, '0');
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
+};
+
+const confirmAction = (message, confirmLabel, onConfirm) => {
+  // Alert.alert is a no-op on react-native-web.
+  if (Platform.OS === 'web') {
+    if (window.confirm(message)) onConfirm();
+    return;
+  }
+  Alert.alert(message, undefined, [
+    { text: t('profiles.cancel'), style: 'cancel' },
+    { text: confirmLabel, style: 'destructive', onPress: onConfirm },
+  ]);
+};
+
 export default function SettingsPanel({ visible, settings, setSettings, onClose }) {
   const [customRoundNum, setCustomRoundNum] = useState('');
   const [customRoundTime, setCustomRoundTime] = useState('');
   const [savedProfiles, setSavedProfiles] = useState([]);
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [profileName, setProfileName] = useState('');
-  const [showProfileHelp, setShowProfileHelp] = useState(false);
+  const [savingAsNew, setSavingAsNew] = useState(false);
   const [profilesExpanded, setProfilesExpanded] = useState(false);
   const [profilesLoaded, setProfilesLoaded] = useState(false);
+  const [drafts, setDrafts] = useState({});
+  const repeatRef = useRef(null);
 
   useEffect(() => {
     const loadProfiles = async () => {
@@ -58,33 +102,42 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
   const activeProfile = selectedProfile
     ? settingsMatchProfile(selectedProfile) ? selectedProfile : null
     : allProfiles.find(settingsMatchProfile);
-  const profileLabel = selectedProfile && !settingsMatchProfile(selectedProfile)
-    ? `${selectedProfile.name} (${t('profiles.unsaved')})`
-    : activeProfile?.name || t('profiles.unsaved');
+  const selectedIsModified = !!selectedProfile && !settingsMatchProfile(selectedProfile);
+  const profileLabel = selectedIsModified
+    ? `${selectedProfile.name} • ${t('profiles.modified')}`
+    : activeProfile?.name || t('profiles.custom');
   const selectedSavedProfile = savedProfiles.find(profile => profile.id === selectedProfileId);
+  const isBuiltIn = profile => BUILT_IN_PROFILES.some(systemProfile => systemProfile.id === profile.id);
+
+  const persistProfiles = async (nextProfiles) => {
+    setSavedProfiles(nextProfiles);
+    try {
+      await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
+    } catch (e) {
+      console.log('Error saving profiles', e);
+    }
+  };
 
   const applyProfile = (profile) => {
     setSelectedProfileId(profile.id);
-    setShowProfileHelp(false);
+    setDrafts({});
     setSettings(JSON.parse(JSON.stringify(profile.settings)));
     setProfilesExpanded(false);
   };
 
-  const saveProfile = async () => {
-    const name = profileName.trim();
-    if (!name && selectedSavedProfile) {
-      const nextProfiles = savedProfiles.map(profile => profile.id === selectedSavedProfile.id
-        ? { ...profile, settings: JSON.parse(JSON.stringify(settings)) }
-        : profile);
-      setSavedProfiles(nextProfiles);
-      try {
-        await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
-      } catch (e) {
-        console.log('Error saving profiles', e);
-      }
-      return;
-    }
+  const updateSelectedProfile = () => {
+    persistProfiles(savedProfiles.map(profile => profile.id === selectedSavedProfile.id
+      ? { ...profile, settings: JSON.parse(JSON.stringify(settings)) }
+      : profile));
+  };
 
+  const cancelSaveAsNew = () => {
+    setSavingAsNew(false);
+    setProfileName('');
+  };
+
+  const saveNewProfile = () => {
+    const name = profileName.trim();
     if (!name) {
       alert(t('alerts.profileNameRequired'));
       return;
@@ -99,33 +152,71 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
       name,
       settings: JSON.parse(JSON.stringify(settings)),
     };
-    const nextProfiles = [...savedProfiles, newProfile];
-    setSavedProfiles(nextProfiles);
+    persistProfiles([...savedProfiles, newProfile]);
     setSelectedProfileId(newProfile.id);
-    setProfileName('');
-    try {
-      await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
-    } catch (e) {
-      console.log('Error saving profiles', e);
-    }
+    cancelSaveAsNew();
   };
 
-  const deleteProfile = async (profileId) => {
-    const nextProfiles = savedProfiles.filter(profile => profile.id !== profileId);
-    setSavedProfiles(nextProfiles);
-    if (selectedProfileId === profileId) setSelectedProfileId(null);
-    try {
-      await AsyncStorage.setItem('innerfire_profiles', JSON.stringify(nextProfiles));
-    } catch (e) {
-      console.log('Error saving profiles', e);
-    }
+  const deleteProfile = (profile) => {
+    confirmAction(t('profiles.confirmDelete', { name: profile.name }), t('profiles.delete'), () => {
+      persistProfiles(savedProfiles.filter(p => p.id !== profile.id));
+      if (selectedProfileId === profile.id) setSelectedProfileId(null);
+    });
   };
 
   const handleChange = (name, value) => {
-    // Allow numbers only.
-    const numValue = value === '' ? 0 : parseFloat(value);
-    setSettings(prev => ({ ...prev, [name]: numValue }));
+    const { min = 0, integer = false } = FIELD_RULES[name] || {};
+    const pattern = integer ? /^\d*$/ : /^\d*\.?\d*$/;
+    if (!pattern.test(value)) return;
+    setDrafts(prev => ({ ...prev, [name]: value }));
+    const numValue = parseFloat(value);
+    if (!Number.isNaN(numValue) && numValue >= min) {
+      setSettings(prev => ({ ...prev, [name]: numValue }));
+    }
   };
+
+  // Drop the draft so an empty or out-of-range entry reverts to the last valid value.
+  const handleBlur = (name) => {
+    setDrafts(prev => {
+      const { [name]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const stepValue = (name, direction) => {
+    const { min = 0, step = 1 } = FIELD_RULES[name] || {};
+    handleBlur(name);
+    setSettings(prev => ({
+      ...prev,
+      [name]: Math.max(min, Math.round((prev[name] + direction * step) * 100) / 100),
+    }));
+  };
+
+  const startRepeat = (name, direction) => {
+    clearInterval(repeatRef.current);
+    repeatRef.current = setInterval(() => stepValue(name, direction), 80);
+  };
+
+  const stopRepeat = () => {
+    clearInterval(repeatRef.current);
+    repeatRef.current = null;
+  };
+
+  useEffect(() => stopRepeat, []);
+
+  const renderStepButton = (name, direction) => (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={`${t(`inputs.${name}`)} ${direction < 0 ? '−' : '+'}`}
+      style={styles.stepperButton}
+      onPress={() => stepValue(name, direction)}
+      onLongPress={() => startRepeat(name, direction)}
+      onPressOut={stopRepeat}
+      delayLongPress={350}
+    >
+      {direction < 0 ? <Minus color="#86efac" size={18} /> : <Plus color="#86efac" size={18} />}
+    </TouchableOpacity>
+  );
 
   const handleAddCustomRound = () => {
     const round = parseInt(customRoundNum, 10);
@@ -211,89 +302,130 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
             </TouchableOpacity>
             {profilesExpanded && (
               <View style={styles.profileOptions}>
-                {allProfiles.map(profile => (
-                  <TouchableOpacity
-                    key={profile.id || profile.name}
-                    style={[
-                      styles.profileOption,
-                      activeProfile?.name === profile.name && styles.activeProfileOption,
-                    ]}
-                    onPress={() => applyProfile(profile)}
-                  >
-                    <Text style={[
-                      styles.profileOptionText,
-                      activeProfile?.name === profile.name && styles.activeProfileText,
-                    ]}>{profile.name} ( - {t(BUILT_IN_PROFILES.some(systemProfile => systemProfile.id === profile.id) ? 'profiles.system' : 'profiles.user')})</Text>
-                  </TouchableOpacity>
-                ))}
+                {allProfiles.map(profile => {
+                  const isActive = activeProfile?.id === profile.id;
+                  const builtIn = isBuiltIn(profile);
+                  return (
+                    <View
+                      key={profile.id}
+                      style={[styles.profileOption, isActive && styles.activeProfileOption]}
+                    >
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        style={styles.profileOptionMain}
+                        onPress={() => applyProfile(profile)}
+                      >
+                        <Text style={[styles.profileOptionText, isActive && styles.activeProfileText]}>
+                          {profile.name}
+                        </Text>
+                        <Text style={styles.profileBadge}>
+                          {t(builtIn ? 'profiles.system' : 'profiles.user')}
+                        </Text>
+                      </TouchableOpacity>
+                      {!builtIn && (
+                        <TouchableOpacity
+                          accessibilityRole="button"
+                          accessibilityLabel={`${t('profiles.delete')}: ${profile.name}`}
+                          style={styles.iconButton}
+                          onPress={() => deleteProfile(profile)}
+                        >
+                          <Trash2 color="#f87171" size={17} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                })}
               </View>
             )}
 
-            <View style={styles.profileSubheadingRow}>
-              <Text style={styles.profileSubheading}>{t('profiles.saveTitle')}</Text>
-              {selectedSavedProfile && (
+            {savingAsNew ? (
+              <View style={[styles.customAddRow, styles.profileActions]}>
+                <TextInput
+                  style={[styles.input, styles.profileNameInput]}
+                  placeholder={t('profiles.namePlaceholder')}
+                  placeholderTextColor="#71817a"
+                  value={profileName}
+                  onChangeText={setProfileName}
+                  onSubmitEditing={saveNewProfile}
+                  autoFocus
+                  returnKeyType="done"
+                />
                 <TouchableOpacity
                   accessibilityRole="button"
-                  accessibilityLabel={t('profiles.updateHint')}
-                  accessibilityState={{ expanded: showProfileHelp }}
-                  style={styles.profileHelpButton}
-                  onPress={() => setShowProfileHelp(!showProfileHelp)}
+                  accessibilityLabel={t('profiles.save')}
+                  style={[styles.profileSaveButton, !profilesLoaded && styles.disabledButton]}
+                  onPress={saveNewProfile}
+                  disabled={!profilesLoaded}
                 >
-                  <CircleHelp color="#86efac" size={18} />
+                  <Check color="#07110d" size={19} />
                 </TouchableOpacity>
-              )}
-            </View>
-            {selectedSavedProfile && (
-              showProfileHelp && <Text style={styles.profileHint}>{t('profiles.updateHint')}</Text>
-            )}
-            <View style={styles.customAddRow}>
-              <TextInput
-                style={[styles.input, styles.profileNameInput]}
-                placeholder={t('profiles.namePlaceholder')}
-                placeholderTextColor="#71817a"
-                value={profileName}
-                onChangeText={setProfileName}
-                returnKeyType="done"
-              />
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={selectedSavedProfile && !profileName.trim() ? t('profiles.saveTitle') : t('profiles.save')}
-                style={[styles.profileSaveButton, !profilesLoaded && styles.disabledButton]}
-                onPress={saveProfile}
-                disabled={!profilesLoaded}
-              >
-                <Save color="#07110d" size={19} />
-              </TouchableOpacity>
-            </View>
-            {savedProfiles.map(profile => (
-              <View key={profile.id} style={styles.savedProfileRow}>
-                <Text style={styles.profileOptionText}>{profile.name}</Text>
                 <TouchableOpacity
                   accessibilityRole="button"
-                  accessibilityLabel={`${t('profiles.delete')}: ${profile.name}`}
-                  style={styles.iconButton}
-                  onPress={() => deleteProfile(profile.id)}
+                  accessibilityLabel={t('profiles.cancel')}
+                  style={styles.profileCancelButton}
+                  onPress={cancelSaveAsNew}
                 >
-                  <Trash2 color="#f87171" size={17} />
+                  <X color="#9CA3AF" size={19} />
                 </TouchableOpacity>
               </View>
-            ))}
+            ) : (
+              <View style={styles.profileActions}>
+                {selectedSavedProfile && selectedIsModified && (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    style={[styles.profileActionButton, styles.profilePrimaryAction]}
+                    onPress={updateSelectedProfile}
+                    disabled={!profilesLoaded}
+                  >
+                    <Save color="#07110d" size={16} />
+                    <Text style={styles.profilePrimaryActionText} numberOfLines={1}>
+                      {t('profiles.update', { name: selectedSavedProfile.name })}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  style={styles.profileActionButton}
+                  onPress={() => setSavingAsNew(true)}
+                  disabled={!profilesLoaded}
+                >
+                  <Plus color="#86efac" size={16} />
+                  <Text style={styles.profileActionText}>{t('profiles.saveAsNew')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
-          {inputGroups.map(group => (
+          {inputGroups.map((group, index) => (
             <View key={group.title} style={styles.settingsSection}>
-              <Text style={styles.sectionTitle}>{t(group.title)}</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, styles.sectionHeaderTitle]}>{t(group.title)}</Text>
+                {index === 0 && (
+                  <Text style={styles.totalTime}>
+                    {t('settings.totalTime')} ≈ <Text style={styles.totalTimeValue}>{formatDuration(estimateSessionSeconds(settings))}</Text>
+                  </Text>
+                )}
+              </View>
               <View style={styles.inputGrid}>
                 {group.inputs.map(name => (
                   <View key={name} style={styles.inputBlock}>
                     <Text style={styles.label}>{t(`inputs.${name}`)}</Text>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={settings[name].toString()}
-                      onChangeText={(val) => handleChange(name, val)}
-                      returnKeyType="done"
-                    />
+                    <View style={styles.stepper}>
+                      {renderStepButton(name, -1)}
+                      <View style={styles.stepperValue}>
+                        <TextInput
+                          style={styles.stepperInput}
+                          keyboardType="numeric"
+                          value={drafts[name] ?? settings[name].toString()}
+                          onChangeText={(val) => handleChange(name, val)}
+                          onBlur={() => handleBlur(name)}
+                          returnKeyType="done"
+                          selectTextOnFocus
+                        />
+                        {FIELD_RULES[name]?.seconds && <Text style={styles.unit}>{t('units.secondsShort')}</Text>}
+                      </View>
+                      {renderStepButton(name, 1)}
+                    </View>
                   </View>
                 ))}
               </View>
@@ -303,7 +435,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
           {/* Custom rounds. */}
           <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>{t('settings.customRounds')}</Text>
-          <View style={styles.customAddRow}>
+          <View style={styles.customRoundRow}>
             <TextInput
               style={[styles.input, styles.roundNumberInput]}
               placeholder={t('customRoundPlaceholderRound')}
@@ -312,6 +444,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
               value={customRoundNum}
               onChangeText={setCustomRoundNum}
             />
+            <View style={styles.roundTimeGroup}>
             <TextInput
               style={[styles.input, styles.roundTimeInput]}
               placeholder={t('customRoundPlaceholderTime')}
@@ -328,10 +461,12 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
             >
               <Plus color="#07110d" size={21} />
             </TouchableOpacity>
+            </View>
           </View>
 
+          {settings.customRounds?.length > 0 && (
           <View style={styles.list}>
-            {(settings.customRounds || []).map(cr => (
+            {settings.customRounds.map(cr => (
               <View key={cr.round} style={styles.listItem}>
                 <Text style={styles.listItemText}>{t('customRoundLabel', { round: cr.round, time: cr.time })}</Text>
                 <TouchableOpacity
@@ -345,6 +480,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
               </View>
             ))}
           </View>
+          )}
           </View>
 
           {/* Restore Defaults */}
@@ -352,6 +488,7 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
             style={styles.restoreBtn}
             onPress={() => {
               setSelectedProfileId('default');
+              setDrafts({});
               setSettings(DEFAULT_SETTINGS);
             }}
           >
@@ -401,39 +538,53 @@ const styles = StyleSheet.create({
   closeBtn: { position: 'absolute', right: 20, top: 0, padding: 10, backgroundColor: '#111827', borderRadius: 50, borderWidth: 1, borderColor: '#374151', zIndex: 10 },
   scrollArea: { flex: 1 },
   scrollContent: { width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 22, paddingTop: 22, paddingBottom: 44 },
-  profileSection: { padding: 17, backgroundColor: '#0d1914', borderWidth: 1, borderColor: '#1d3c2e', borderRadius: 14, marginBottom: 26 },
+  profileSection: { padding: 17, backgroundColor: '#0d1914', borderWidth: 1, borderColor: '#1d3c2e', borderRadius: 14, marginBottom: 16 },
   sectionEyebrow: { color: '#86efac', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', marginBottom: 10 },
   profileSelector: { minHeight: 66, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#101e18', paddingHorizontal: 14, paddingVertical: 11, borderRadius: 10, borderWidth: 1, borderColor: '#2b4a3a' },
   profileCaption: { color: '#81948a', fontSize: 12, marginBottom: 3 },
   profileSelectorText: { color: '#f3f7f4', fontSize: 17, fontWeight: '600' },
   profileOptions: { marginTop: 7, overflow: 'hidden', borderRadius: 9, backgroundColor: '#0a1410' },
-  profileOption: { paddingHorizontal: 13, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1b2b25' },
+  profileOption: { flexDirection: 'row', alignItems: 'center', paddingRight: 8, borderBottomWidth: 1, borderBottomColor: '#1b2b25' },
+  profileOptionMain: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 13, paddingVertical: 12 },
   activeProfileOption: { backgroundColor: '#14271d' },
   profileOptionText: { color: '#c5d0c9', fontSize: 14 },
   activeProfileText: { color: '#86efac', fontWeight: '600' },
-  profileSubheadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 },
-  profileSubheading: { color: '#9aaba1', fontSize: 12 },
+  profileBadge: { color: '#81948a', fontSize: 11, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#2b4a3a', overflow: 'hidden' },
+  profileActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 0 },
+  profileActionButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 13, paddingVertical: 10, borderRadius: 9, borderWidth: 1, borderColor: '#2b4a3a' },
+  profileActionText: { color: '#86efac', fontSize: 14, fontWeight: '600' },
+  profilePrimaryAction: { flexShrink: 1, backgroundColor: '#86efac', borderColor: '#86efac' },
+  profilePrimaryActionText: { flexShrink: 1, color: '#07110d', fontSize: 14, fontWeight: '600' },
   profileNameInput: { flex: 1, minWidth: 0 },
-  profileHint: { color: '#81948a', fontSize: 11, marginTop: -4, marginBottom: 8 },
-  profileHelpButton: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   profileSaveButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#86efac', borderRadius: 10 },
+  profileCancelButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#111827', borderRadius: 10, borderWidth: 1, borderColor: '#374151' },
   disabledButton: { opacity: 0.5 },
-  savedProfileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10 },
-  settingsSection: { marginBottom: 23 },
-  inputGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  settingsSection: { padding: 17, backgroundColor: '#0b0f0d', borderWidth: 1, borderColor: '#1f2a25', borderRadius: 14, marginBottom: 16 },
+  inputGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: -14 },
   inputBlock: { width: '48%', marginBottom: 14 },
   label: { color: '#a4b2aa', fontSize: 12, marginBottom: 7 },
   input: { minWidth: 0, minHeight: 48, backgroundColor: '#101915', color: '#f3f7f4', paddingHorizontal: 13, paddingVertical: 10, borderRadius: 9, fontSize: 16, borderWidth: 1, borderColor: '#283a32' },
-  sectionTitle: { color: '#edf4ef', fontSize: 16, fontWeight: '700', marginBottom: 13 },
+  sectionTitle: { color: '#a4b2aa', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', marginBottom: 12 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  sectionHeaderTitle: { marginBottom: 0 },
+  totalTime: { color: '#81948a', fontSize: 12 },
+  totalTimeValue: { color: '#86efac', fontWeight: '700', fontVariant: ['tabular-nums'] },
+  stepper: { flexDirection: 'row', alignItems: 'stretch', minHeight: 48, backgroundColor: '#101915', borderRadius: 9, borderWidth: 1, borderColor: '#283a32', overflow: 'hidden' },
+  stepperButton: { width: 38, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0d1612' },
+  stepperValue: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  stepperInput: { flexShrink: 1, minWidth: 24, color: '#f3f7f4', fontSize: 16, textAlign: 'center', paddingVertical: 10, paddingHorizontal: 0 },
+  unit: { color: '#71817a', fontSize: 14, marginLeft: 3 },
   customAddRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 9, gap: 8 },
-  roundNumberInput: { flex: 0.8 },
+  customRoundRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  roundNumberInput: { width: '48%' },
+  roundTimeGroup: { width: '48%', flexDirection: 'row', alignItems: 'center', gap: 8 },
   roundTimeInput: { flex: 1 },
   addIconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#86efac', borderRadius: 9 },
-  list: { marginBottom: 12 },
-  listItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#1b2b25', alignItems: 'center' },
+  list: { marginTop: 6, marginBottom: -6 },
+  listItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 9, borderTopWidth: 1, borderTopColor: '#1b2b25', alignItems: 'center' },
   listItemText: { fontSize: 14, color: '#d5dfd8' },
   iconButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 9, backgroundColor: '#1d211d' },
-  restoreBtn: { flexDirection: 'row', gap: 8, padding: 13, borderWidth: 1, borderColor: '#573333', borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
+  restoreBtn: { flexDirection: 'row', gap: 8, padding: 13, borderWidth: 1, borderColor: '#573333', borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
   restoreBtnText: { color: '#fca5a5', fontWeight: '600', fontSize: 14 },
   footerContainer: {
     marginTop: 40,
