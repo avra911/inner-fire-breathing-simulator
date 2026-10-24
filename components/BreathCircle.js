@@ -173,12 +173,15 @@ export default function BreathCircle({ scaleAnim, timerText, phase, progress = 0
 }
 
 const styles = StyleSheet.create({
-  wrapper: { alignItems: 'center', justifyContent: 'center' },
+  wrapper: { width: 300, height: 300, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   textContainer: { 
+    position: 'absolute',
+    top: -70,
+    left: 0,
+    right: 0,
     height: 60, 
     justifyContent: 'center', 
     alignItems: 'center',
-    marginBottom: 10 
   },
   fractionContainer: {
     flexDirection: 'row',

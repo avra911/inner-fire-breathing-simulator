@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     borderColor: '#374151',
     zIndex: 10
   },
-  centerArea: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  centerArea: { flex: 1, justifyContent: 'center', alignItems: 'center', transform: [{ translateY: 18 }] },
   phaseText: { fontSize: 22, color: '#d1d5db', textAlign: 'center', marginBottom: 30, fontWeight: '500' },
   controls: { paddingBottom: 40 },
   button: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, borderRadius: 30, gap: 10 },
