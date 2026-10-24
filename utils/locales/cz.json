@@ -4,6 +4,8 @@
   "pause": "Pauza",
   "resume": "Pokračovat",
   "stop": "Stop",
+  "soundOff": "Vypnout zvuk",
+  "soundOn": "Zapnout zvuk",
   "settings": { "title": "Nastavení sezení", "customRounds": "Vlastní kola", "session": "Sezení", "breathing": "Dýchání", "recovery": "Regenerace", "totalTime": "Celkem" },
   "units": { "secondsShort": "s" },
   "profiles": { "title": "Profil", "select": "Vybrat profil", "custom": "Vlastní", "modified": "upraveno", "system": "Systém", "user": "Uživatel", "update": "Aktualizovat „%{name}“", "saveAsNew": "Uložit jako nový…", "namePlaceholder": "Název profilu", "save": "Uložit profil", "cancel": "Zrušit", "confirmDelete": "Smazat profil „%{name}“?", "delete": "Smazat profil" },

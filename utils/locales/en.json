@@ -4,6 +4,8 @@
   "pause": "Pause",
   "resume": "Resume",
   "stop": "Stop",
+  "soundOff": "Turn sound off",
+  "soundOn": "Turn sound on",
   "settings": { "title": "Session Settings", "customRounds": "Custom Rounds", "session": "Session", "breathing": "Breathing", "recovery": "Recovery", "totalTime": "Total" },
   "units": { "secondsShort": "s" },
   "profiles": { "title": "Profile", "select": "Select profile", "custom": "Custom", "modified": "modified", "system": "System", "user": "User", "update": "Update “%{name}”", "saveAsNew": "Save as new…", "namePlaceholder": "Profile name", "save": "Save profile", "cancel": "Cancel", "delete": "Delete profile", "confirmDelete": "Delete profile “%{name}”?" },

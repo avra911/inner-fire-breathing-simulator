@@ -4,6 +4,8 @@
   "pause": "Pauză",
   "resume": "Continuă",
   "stop": "Stop",
+  "soundOff": "Oprește sunetul",
+  "soundOn": "Pornește sunetul",
   "settings": { "title": "Setări Sesiune", "customRounds": "Runde Personalizate", "session": "Sesiune", "breathing": "Respirație", "recovery": "Recuperare", "totalTime": "Total" },
   "units": { "secondsShort": "s" },
   "profiles": { "title": "Profil", "select": "Alege profilul", "custom": "Personalizat", "modified": "modificat", "system": "Sistem", "user": "Utilizator", "update": "Actualizează „%{name}”", "saveAsNew": "Salvează ca nou…", "namePlaceholder": "Numele profilului", "save": "Salvează profilul", "cancel": "Anulează", "delete": "Șterge profilul", "confirmDelete": "Ștergi profilul „%{name}”?" },

@@ -4,6 +4,8 @@
   "pause": "Pause",
   "resume": "Reprendre",
   "stop": "Arrêter",
+  "soundOff": "Désactiver le son",
+  "soundOn": "Activer le son",
   "settings": { "title": "Paramètres de session", "customRounds": "Tours personnalisés", "session": "Session", "breathing": "Respiration", "recovery": "Récupération", "totalTime": "Total" },
   "units": { "secondsShort": "s" },
   "profiles": { "title": "Profil", "select": "Choisir un profil", "custom": "Personnalisé", "modified": "modifié", "system": "Système", "user": "Utilisateur", "update": "Mettre à jour « %{name} »", "saveAsNew": "Enregistrer comme nouveau…", "namePlaceholder": "Nom du profil", "save": "Enregistrer le profil", "cancel": "Annuler", "confirmDelete": "Supprimer le profil « %{name} » ?", "delete": "Supprimer le profil" },

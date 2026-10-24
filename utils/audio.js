@@ -19,6 +19,7 @@ const AUDIO_MODE = {
 let currentLoopingSound = null;
 let audioModePromise = null;
 let loopRequestId = 0;
+let soundsEnabled = true;
 
 function ensureAudioMode() {
     if (!audioModePromise) {
@@ -56,6 +57,15 @@ function waitForPlayerReady(player) {
 
 const playerPromises = {};
 
+export function setSoundsEnabled(enabled) {
+    soundsEnabled = enabled;
+    Object.values(playerPromises).forEach((playerPromise) => {
+        playerPromise.then((player) => {
+            player.muted = !enabled;
+        }).catch(() => {});
+    });
+}
+
 // Players are reused because remove() leaves Android AudioTracks allocated until the process runs out.
 function getPlayer(type, { volume, loop = false }) {
     if (!playerPromises[type]) {
@@ -64,6 +74,7 @@ function getPlayer(type, { volume, loop = false }) {
             const player = createAudioPlayer(ZEN_SOUNDS[type]);
             player.volume = volume;
             player.loop = loop;
+            player.muted = !soundsEnabled;
             try {
                 await waitForPlayerReady(player);
             } catch (error) {
@@ -81,9 +92,13 @@ function getPlayer(type, { volume, loop = false }) {
 
 // Play a short sound (inhale, exhale, or bowl).
 export async function playSound(type) {
+    if (!soundsEnabled) return;
+
     try {
         const player = await getPlayer(type, { volume: 0.6 });
+        if (!soundsEnabled) return;
         await player.seekTo(0);
+        if (!soundsEnabled) return;
         player.play();
     } catch (error) {
         console.warn(`Error playing ${type} sound:`, error);

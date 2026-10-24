@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Animated, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sleep, playSound, startLoopingSound, stopLoopingSound } from '../utils/audio';
+import { sleep, playSound, setSoundsEnabled, startLoopingSound, stopLoopingSound } from '../utils/audio';
 import { t } from '../utils/i18n';
 
 export const DEFAULT_SETTINGS = {
@@ -21,10 +21,12 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [canPause, setCanPause] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(true);
 
   const stopRef = useRef(false);
   const pauseRef = useRef(false);
   const pauseResolveRef = useRef(null);
+  const soundEnabledRef = useRef(true);
 
   const displayTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -193,7 +195,13 @@ export function useBreathing(settings = DEFAULT_SETTINGS) {
   const pause = useCallback(() => { setIsPaused(true); pauseRef.current = true; setPhase(t('phase.paused')); }, []);
   const resume = useCallback(() => { setIsPaused(false); pauseRef.current = false; setPhase(t('phase.resumed')); if (pauseResolveRef.current) { pauseResolveRef.current(); pauseResolveRef.current = null; } }, []);
   const stop = useCallback(() => { stopRef.current = true; if (pauseRef.current && pauseResolveRef.current) { pauseResolveRef.current(); } reset(); }, []);
+  const toggleSound = useCallback(() => {
+    const nextSoundEnabled = !soundEnabledRef.current;
+    soundEnabledRef.current = nextSoundEnabled;
+    setSoundEnabledState(nextSoundEnabled);
+    setSoundsEnabled(nextSoundEnabled);
+  }, []);
 
   // Expose currentRound for the UI.
-  return { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, start, pause, resume, stop, currentRound };
+  return { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, soundEnabled, toggleSound, start, pause, resume, stop, currentRound };
 }

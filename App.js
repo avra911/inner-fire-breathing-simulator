@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, StatusBar as RNStatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Play, Settings, Square, Pause } from 'lucide-react-native';
+import { Play, Settings, Square, Pause, Volume2, VolumeX } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useKeepAwake } from 'expo-keep-awake';
 
@@ -35,7 +35,7 @@ export default function App() {
     AsyncStorage.setItem('innerfire_settings', JSON.stringify(settings));
   }, [settings]);
 
-  const { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, start, pause, resume, stop, currentRound } = useBreathing(settings);
+  const { phase, timerText, scaleAnim, progress, isRunning, isPaused, canPause, soundEnabled, toggleSound, start, pause, resume, stop, currentRound } = useBreathing(settings);
 
   // Define the color theme ("Level Up") as a spectrum from green to white.
   const getThemeColor = (round) => {
@@ -59,6 +59,19 @@ export default function App() {
     return roundColors[colorIndex];
   };
   const activeColor = getThemeColor(currentRound);
+  const soundToggleButton = (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={t(soundEnabled ? 'soundOff' : 'soundOn')}
+      accessibilityState={{ selected: !soundEnabled }}
+      title={t(soundEnabled ? 'soundOff' : 'soundOn')}
+      hitSlop={8}
+      style={[styles.soundToggle, soundEnabled ? styles.soundEnabled : styles.soundMuted]}
+      onPress={toggleSound}
+    >
+      {soundEnabled ? <Volume2 color="#86efac" size={24} /> : <VolumeX color="#fca5a5" size={24} />}
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaProvider>
@@ -107,31 +120,53 @@ export default function App() {
 
         <View style={styles.controls}>
           {!isRunning ? (
-            <TouchableOpacity style={[styles.button, styles.startButton]} onPress={start}>
-              <Play color="#ffffff" size={24} fill="#ffffff" />
-              <Text style={styles.buttonText}>{t('startSession')}</Text>
-            </TouchableOpacity>
+            <View style={styles.activeControls}>
+              {soundToggleButton}
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t('startSession')}
+                title={t('startSession')}
+                style={[styles.controlIconButton, styles.startButton]}
+                onPress={start}
+              >
+                <Play color="#ffffff" size={24} fill="#ffffff" />
+              </TouchableOpacity>
+            </View>
           ) : (
             <View style={styles.activeControls}>
+              {soundToggleButton}
               {!isPaused ? (
-                <TouchableOpacity
-                  style={[styles.button, styles.pauseButton, !canPause && { opacity: 0.5 }]}
-                  onPress={pause}
-                  disabled={!canPause}
-                >
-                  <Pause color="#ffffff" size={24} fill="#ffffff" />
-                  <Text style={styles.buttonText}>{t('pause')}</Text>
-                </TouchableOpacity>
+                canPause ? (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={t('pause')}
+                    title={t('pause')}
+                    style={[styles.controlIconButton, styles.pauseButton]}
+                    onPress={pause}
+                  >
+                    <Pause color="#ffffff" size={24} fill="#ffffff" />
+                  </TouchableOpacity>
+                ) : null
               ) : (
-                <TouchableOpacity style={[styles.button, styles.resumeButton]} onPress={resume}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={t('resume')}
+                  title={t('resume')}
+                  style={[styles.controlIconButton, styles.resumeButton]}
+                  onPress={resume}
+                >
                   <Play color="#ffffff" size={24} fill="#ffffff" />
-                  <Text style={styles.buttonText}>{t('resume')}</Text>
                 </TouchableOpacity>
               )}
 
-              <TouchableOpacity style={[styles.button, styles.stopButton]} onPress={stop}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t('stop')}
+                title={t('stop')}
+                style={[styles.controlIconButton, styles.stopButton]}
+                onPress={stop}
+              >
                 <Square color="#ffffff" size={24} fill="#ffffff" />
-                <Text style={styles.buttonText}>{t('stop')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -185,11 +220,13 @@ const styles = StyleSheet.create({
   centerArea: { flex: 1, justifyContent: 'center', alignItems: 'center', transform: [{ translateY: 18 }] },
   phaseText: { fontSize: 22, color: '#d1d5db', textAlign: 'center', marginBottom: 30, fontWeight: '500' },
   controls: { paddingBottom: 40 },
-  button: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, borderRadius: 30, gap: 10 },
-  activeControls: { flexDirection: 'row', gap: 15 },
-  startButton: { backgroundColor: '#16a34a', width: '100%' },
-  pauseButton: { backgroundColor: '#ca8a04', flex: 1 },
-  resumeButton: { backgroundColor: '#2563eb', flex: 1 },
-  stopButton: { backgroundColor: '#dc2626', flex: 1 },
-  buttonText: { color: '#ffffff', fontSize: 18, fontWeight: 'bold' },
+  activeControls: { flexDirection: 'row', justifyContent: 'center', gap: 15 },
+  controlIconButton: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center', borderRadius: 30 },
+  soundToggle: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center', borderRadius: 30, borderWidth: 1 },
+  soundEnabled: { backgroundColor: '#101915', borderColor: '#2b4a3a' },
+  soundMuted: { backgroundColor: '#241212', borderColor: '#6b3333' },
+  startButton: { backgroundColor: '#16a34a' },
+  pauseButton: { backgroundColor: '#ca8a04' },
+  resumeButton: { backgroundColor: '#2563eb' },
+  stopButton: { backgroundColor: '#dc2626' },
 });

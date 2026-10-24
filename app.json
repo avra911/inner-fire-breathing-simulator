@@ -60,7 +60,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/splash-wordmark.png",
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
