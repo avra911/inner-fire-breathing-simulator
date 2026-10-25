@@ -60,7 +60,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-wordmark-tight.png",
+          "image": "./assets/android-splash-dots.png",
           "imageWidth": 350,
           "resizeMode": "contain",
           "backgroundColor": "#000000"
