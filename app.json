@@ -61,7 +61,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/android-splash-dots.png",
-          "imageWidth": 350,
+          "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
