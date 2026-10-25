@@ -275,7 +275,13 @@ export default function SettingsPanel({ visible, settings, setSettings, onClose 
         >
         <View style={styles.headerFrame}>
           <View style={styles.header}>
-            <Text style={styles.title}>{t('settings.title')}</Text>
+            <Text style={styles.title}>
+              {t('settings.title') === 'Session Settings' ? (
+                <>
+                  Session <Text style={styles.titleHighlight}>Settings</Text>
+                </>
+              ) : t('settings.title')}
+            </Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('close')} onPress={onClose} style={styles.closeBtn}>
               <X color="#9CA3AF" size={26} />
             </TouchableOpacity>
@@ -535,6 +541,7 @@ const styles = StyleSheet.create({
   headerFrame: { width: '100%', borderBottomWidth: 1, borderBottomColor: '#1f2937', marginBottom: 22 },
   header: { width: '100%', maxWidth: 680, height: 60, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' },
   title: { color: '#ffffff', fontSize: 26, fontWeight: 'bold', textAlign: 'center' },
+  titleHighlight: { color: '#22c55e', fontWeight: '300' },
   closeBtn: { position: 'absolute', right: 20, top: 0, padding: 10, backgroundColor: '#111827', borderRadius: 50, borderWidth: 1, borderColor: '#374151', zIndex: 10 },
   scrollArea: { flex: 1 },
   scrollContent: { width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 22, paddingTop: 22, paddingBottom: 44 },

@@ -7,6 +7,7 @@ services:
         LOCAL_UID: ${LOCAL_UID:-1000}
         LOCAL_GID: ${LOCAL_GID:-1000}
     image: inner-fire-android-builder
+    network_mode: host
     working_dir: /workspace
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     volumes:
